@@ -37,3 +37,41 @@ export const testimonialData = [
     rating: 4,
   },
 ];
+
+export const pricingData = [
+  {
+    title: "Standard",
+    subTitle: "Perfect for Individual",
+    price: 39,
+    features: [
+      "instantly accept payment globally",
+      "automated sales compliance",
+      " instantly accept payment globally",
+    ],
+  },
+  {
+    title: "Professional",
+    subTitle: "Perfect for Growing Business",
+    price: 99,
+    features: [
+      "All features from standard",
+      "Sell digital downloads",
+      "Launch eCommerce stores",
+      "Discounts & Coupon codes",
+    ],
+  },
+  {
+    title: "Agency Plan",
+    subTitle: "Perfect for Large Companies",
+    price: 499,
+    features: [
+      "All features from standard & Pro",
+      "No-code checkout forms",
+      "Sales tax & VAT collections",
+      "Support major payment methods",
+      "Growth with magnets",
+      "Recover lost payments",
+      "Real-time revenue insight",
+    ],
+  },
+];
