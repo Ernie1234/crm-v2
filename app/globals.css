@@ -77,3 +77,51 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  @apply bg-green-900;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  @apply bg-green-700 rounded-[5px];
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-green-600;
+}
+
+.continue__text {
+  display: grid;
+  grid-template-columns: 1fr max-content 1fr;
+  align-items: center;
+  grid-gap: 1.5rem;
+  font-size: 1.1rem;
+  color: #575757;
+}
+.continue__text::before,
+.continue__text::after {
+  content: "";
+  display: block;
+  background-color: currentColor;
+  height: 1px;
+}

@@ -11,22 +11,22 @@ export default function Navbar() {
   return (
     <nav className="bg-green border-b border-green-foreground">
       <Wrapper className="flex justify-between items-center p-4 text-green-foreground">
-        logo
+        ACM
         <ul className="hidden md:flex gap-8 items-center">
           {navLinks.map((link) => (
-            <li key={link.text} className="text-green-foreground ">
+            <li key={link.text} className="text-green-foreground">
               <Link href={link.path}>{link.text}</Link>
             </li>
           ))}
         </ul>
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-4">
-            <Link href="/auth/customer/register">
+            <Link href="/auth/register">
               <Button className="bg-green-foreground hover:bg-green-600 text-green font-semibold">
-                Log In
+                Sign up
               </Button>
             </Link>
-            <Link href="/auth/customer/login">
+            <Link href="/auth/login">
               <Button className="bg-green-950 hover:bg-green-900">
                 Sign In
               </Button>
