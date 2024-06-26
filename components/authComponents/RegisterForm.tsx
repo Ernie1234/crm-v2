@@ -94,7 +94,7 @@ export default function RegisterForm() {
               <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 space-x-0 md:space-x-5 min-w-full">
                 <FormField
                   control={form.control}
-                  name="first_name"
+                  name="firstName"
                   render={({ field }) => (
                     <FormItem className="w-full">
                       <FormLabel>First Name*</FormLabel>
@@ -114,7 +114,7 @@ export default function RegisterForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="last_name"
+                  name="lastName"
                   render={({ field }) => (
                     <FormItem className="w-full">
                       <FormLabel>Last Name*</FormLabel>
@@ -155,7 +155,7 @@ export default function RegisterForm() {
               />
               <FormField
                 control={form.control}
-                name="phone_number"
+                name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Phone Number*</FormLabel>
@@ -201,8 +201,9 @@ export default function RegisterForm() {
             <Button
               className="bg-green-700 hover:bg-green-600 text-gray-100 hover:text-gray-100 text-lg w-full rounded-full py-6"
               type="submit"
+              disabled={isPending}
             >
-              Creat account
+              {isPending ? "Loading..." : "Creat account"}
             </Button>
           </form>
         </Form>

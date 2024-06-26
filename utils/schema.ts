@@ -13,14 +13,14 @@ export const userLoginFormSchema = z.object({
 
 //USER'S REGISTER FORM ZOD SCHEMA
 export const userRegisterFormSchema = z.object({
-  first_name: z.string().min(1, {
+  firstName: z.string().min(1, {
     message: "First name must be at least 1 characters.",
   }),
-  last_name: z.string().min(1, {
+  lastName: z.string().min(1, {
     message: "Last name must be at least 1 characters.",
   }),
   email: z.string().email("Invalid email address"),
-  phone_number: z
+  phoneNumber: z
     .string()
     .min(10, "Phone number must be at least 10 characters long")
     .max(15, "Phone number must be at most 15 characters long")
