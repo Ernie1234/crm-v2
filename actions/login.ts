@@ -34,6 +34,6 @@ export const loginAction = async (
           return { error: "Something went wrong!" };
       }
 
-    // throw error;
+    throw error;
   }
 };
