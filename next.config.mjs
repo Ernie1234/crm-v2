@@ -32,6 +32,11 @@ const nextConfig = {
         hostname: "media.istockphoto.com",
         pathname: "**",
       },
+      {
+        protocol: "https",
+        hostname: "cdni.iconscout.com",
+        pathname: "**",
+      },
     ],
   },
 };

@@ -1,3 +1,7 @@
+import { Bolt, HandCoins, LineChart } from "lucide-react";
+import { ShoppingBasket } from "lucide-react";
+import { BsHouse } from "react-icons/bs";
+
 import { db } from "./db";
 
 export const navLinks = [
@@ -16,6 +20,33 @@ export const navLinks = [
   {
     path: "/about",
     text: "About Us",
+  },
+];
+export const dashboardLinks = [
+  {
+    path: "/dashboard",
+    text: "Dashboard",
+    icon: BsHouse,
+  },
+  {
+    path: "/dashboard/commodity",
+    text: "Commodity Market",
+    icon: ShoppingBasket,
+  },
+  {
+    path: "/dashboard/portfolio",
+    text: "Portfolio",
+    icon: LineChart,
+  },
+  {
+    path: "/dashboard/transaction",
+    text: "Transaction",
+    icon: HandCoins,
+  },
+  {
+    path: "/dashboard/setting",
+    text: "Setting",
+    icon: Bolt,
   },
 ];
 
@@ -101,6 +132,31 @@ export const getUserById = async (id: string) => {
 
     return user;
   } catch (error) {
+    return null;
+  }
+};
+
+export const getVerificationTokenByToken = async (token: string) => {
+  try {
+    const verificationToken = await db.verificationToken.findUnique({
+      where: {
+        token,
+      },
+    });
+    return verificationToken;
+  } catch {
+    return null;
+  }
+};
+export const getVerificationTokenByEmail = async (email: string) => {
+  try {
+    const verificationToken = await db.verificationToken.findFirst({
+      where: {
+        email,
+      },
+    });
+    return verificationToken;
+  } catch {
     return null;
   }
 };

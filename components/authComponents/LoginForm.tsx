@@ -1,7 +1,5 @@
 "use client";
 
-import { FaFacebookF } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,11 +20,18 @@ import FormError from "./FormError";
 import { loginAction } from "@/actions/login";
 import { useState, useTransition } from "react";
 import FormSuccess from "./FormSuccess";
+import FormHeader from "./FormHeader";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginForm() {
   const [errors, setErrors] = useState<string | undefined>("");
   const [successs, setSuccesss] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
+  const urlError =
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "Email already linked"
+      : undefined;
 
   const form = useForm<z.infer<typeof userLoginFormSchema>>({
     resolver: zodResolver(userLoginFormSchema),
@@ -47,7 +52,7 @@ export default function LoginForm() {
           setSuccesss(undefined);
         } else {
           setErrors(undefined);
-          setSuccesss(data?.success);
+          // setSuccesss(data?.success);
         }
       });
     });
@@ -55,38 +60,7 @@ export default function LoginForm() {
 
   return (
     <div className="flex-1 min-h-full flex flex-col bg-zinc-50 px-6 sm:px-12 md:px-16 lg:px-28 py-8 border-2 border-gray-200 overflow-y-scroll no-scrollbar">
-      <Link href="/">
-        <h4 className="text-green-600 font-medium text-2xl w-min">
-          A<span className="text-orange-400">C</span>M
-        </h4>
-      </Link>
-      <div className="flex flex-col items-center mt-16">
-        <h1 className="text-3xl font-semibold text-green-600">
-          Create an Account
-        </h1>
-        <p className="text-lg">Log into your Agent Account below</p>
-        <div className="flex flex-col md:flex-row gap-3 pt-5">
-          <Button
-            disabled={isPending}
-            variant="outline"
-            className="rounded-full text-lg px-6 py-4"
-          >
-            <FcGoogle className="mr-2 h-6 w-6" />
-            Google
-          </Button>
-          <Button
-            disabled={isPending}
-            variant="outline"
-            className="rounded-full text-lg px-6 py-4"
-          >
-            <FaFacebookF className="mr-2 h-6 w-6 text-blue-600" />
-            Facebook
-          </Button>
-        </div>
-      </div>
-
-      <p className="continue__text mt-4">Or continue with email</p>
-
+      <FormHeader title="Welcome Back" subtitle="Log into your Account below" />
       <div className="flex flex-col mt-4">
         <Form {...form}>
           <form
@@ -145,7 +119,7 @@ export default function LoginForm() {
               />
             </div>
 
-            <FormError message={errors} />
+            <FormError message={errors || urlError} />
             <FormSuccess message={successs} />
 
             <Button

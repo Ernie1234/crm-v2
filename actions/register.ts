@@ -29,6 +29,7 @@ export const registerAction = async (
     data: {
       firstName,
       lastName,
+      name: `${firstName} ${lastName}`,
       email,
       phoneNumber,
       password: hashedPassword,
