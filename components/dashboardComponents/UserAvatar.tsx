@@ -7,7 +7,6 @@ import { ChevronDown } from "lucide-react";
 
 export function UserAvatar() {
   const user = useCurrentUser();
-  console.log(user);
 
   return (
     <>

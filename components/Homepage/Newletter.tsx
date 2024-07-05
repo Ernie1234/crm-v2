@@ -27,7 +27,7 @@ const Newletter = () => {
   });
 
   function onSubmit(values: z.infer<typeof newsLetterFormSchema>) {
-    console.log(values);
+    // console.log(values);
   }
 
   return (

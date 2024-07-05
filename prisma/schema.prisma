@@ -19,17 +19,18 @@ enum UserRole {
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
   firstName     String?
   lastName      String?
   name          String?
   phoneNumber   String?
-  email         String?   @unique
+  email         String?     @unique
   emailVerified DateTime?
   image         String?
   password      String?
-  role          UserRole  @default(USER)
+  role          UserRole    @default(USER)
   accounts      Account[]
+  commodity     Commodity[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -64,4 +65,28 @@ model VerificationToken {
   expires DateTime
 
   @@unique([email, token])
+}
+
+model Commodity {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   @unique
+  description String
+  price       Price[]
+  image       String?
+  unit        String
+  minQuantity Int
+  maxQuantity Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Price {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  price       Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  commodityId String    @db.ObjectId
+  commodity   Commodity @relation(fields: [commodityId], references: [id], onDelete: Cascade)
 }

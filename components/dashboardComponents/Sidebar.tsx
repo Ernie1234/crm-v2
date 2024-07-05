@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { MdOutlineAdminPanelSettings } from "react-icons/md";
 
 import { dashboardLinks } from "@/utils/data";
+import { useCurrentRole } from "@/hooks/use-current-role";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const role = useCurrentRole();
 
   return (
     <aside className="sticky top-0 max-h-dvh min-w-min bg-green-800 p-4 flex flex-col justify-between">
@@ -31,6 +34,19 @@ export default function Sidebar() {
               <p className="hidden lg:block">{text}</p>
             </Link>
           ))}
+          {role === "ADMIN" && (
+            <Link
+              href="/admin"
+              className={`min-w-max flex items-center space-x-3 px-4 py-2 ${
+                pathname === "/admin"
+                  ? "text-white bg-green-700 font-medium"
+                  : "text-gray-100 hover:text-gray-300"
+              } transition-all duration-300 rounded-md`}
+            >
+              <MdOutlineAdminPanelSettings size={20} />
+              <p className="hidden lg:block">Administrator</p>
+            </Link>
+          )}
         </div>
       </div>
       <div className="text-white">buttons</div>

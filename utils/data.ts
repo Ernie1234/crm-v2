@@ -108,6 +108,24 @@ export const pricingData = [
     ],
   },
 ];
+export const productData = [
+  {
+    id: 1,
+    name: "Maize",
+    description: "Amazing crunchy maize",
+    quantity: "3",
+    price: "960",
+    date_created: "2024-02-24T14:15:22Z",
+  },
+  {
+    id: 2,
+    name: "Beans",
+    description: "Good beans",
+    quantity: "1",
+    price: "9300",
+    date_created: "2024-08-24T14:15:22Z",
+  },
+];
 
 export const getUserByEmail = async (email: string) => {
   try {

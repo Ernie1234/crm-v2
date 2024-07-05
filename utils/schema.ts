@@ -35,3 +35,30 @@ export const userRegisterFormSchema = z.object({
     })
     .max(25, { message: "Password must be less than 26 characters." }),
 });
+
+//ADD COMMODITY FORM ZOD SCHEMA
+export const commodityFormSchema = z.object({
+  name: z.string().min(1, {
+    message: "Name must be at least 1 characters.",
+  }),
+  description: z.string().min(3, {
+    message: "Description must be at least 3 characters.",
+  }),
+  minQuantity: z.string().min(1, {
+    message: "Quantity must not be less than 1.",
+  }),
+  maxQuantity: z.string(),
+  price: z.string().min(1, {
+    message: "Price must not be less than 1.",
+  }),
+  unit: z.string(),
+});
+//EDIT COMMODITY FORM ZOD SCHEMA
+export const editCommodityFormSchema = z.object({
+  name: z.string().min(1, {
+    message: "Name must be at least 1 characters.",
+  }),
+  price: z.string().min(1, {
+    message: "Price must not be less than 1.",
+  }),
+});

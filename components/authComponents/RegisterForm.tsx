@@ -34,7 +34,6 @@ export default function RegisterForm() {
   function onSubmit(values: z.infer<typeof userRegisterFormSchema>) {
     setErrors("");
     setSuccesss("");
-    console.log(values);
 
     startTransition(() => {
       registerAction(values).then((data) => {
