@@ -1,5 +1,3 @@
-import { TbCurrencyNaira } from "react-icons/tb";
-
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -11,7 +9,6 @@ import {
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -21,8 +18,6 @@ import Nav from "@/components/dashboardComponents/Nav";
 import CommodityForm from "@/components/dashboardComponents/commodity/CommodityForm";
 import serverCurrentUser from "@/app/_components/serverCurrentUser";
 import { getAllCommodities } from "@/actions/commodity";
-import { formatPrice } from "@/utils/fnLib";
-import Link from "next/link";
 import Row from "@/components/dashboardComponents/commodity/Row";
 
 export default async function page() {

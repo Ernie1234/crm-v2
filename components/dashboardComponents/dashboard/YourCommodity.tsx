@@ -13,7 +13,7 @@ export default function YourCommodity() {
           </button>
         </Link>
       </div>
-      <div className="bg-white p-4 rounded-md h-full shadow-sm">
+      <div className="bg-white p-4 rounded-lg border border-gray-200 h-full shadow-sm">
         {/* Commodity cards */}
 
         {/* Empty Commodity cards */}

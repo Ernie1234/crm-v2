@@ -80,23 +80,20 @@ export const updateCommodity = async (
   });
 
   if (!commodity) return { error: "Commodity not found!" };
-  console.log(commodity);
 
-  if (role === "ADMIN")
-    await db.commodity.update({
-      where: { id: commodity.id },
-      data: {
-        price: {
-          ...commodity.price,
-          create: {
-            price: newPrice,
-          },
-          // where: { id: commodity.price[0].id },
-          // data: { price: newPrice },
-        },
+  if (role !== "ADMIN") {
+    return { error: "Authorized!" };
+  }
+
+  await db.commodity.update({
+    where: { id: commodity.id },
+    data: {
+      price: {
+        create: [{ price: newPrice }],
       },
-      include: { user: true, price: true },
-    });
+    },
+    include: { user: true, price: true },
+  });
 
   revalidatePath(`/dashboard/commodity/${commodity.id}`);
   return { success: "Commodity updated successful!" };
