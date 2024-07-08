@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 
 import Sidebar from "@/components/dashboardComponents/Sidebar";
 import { Metadata } from "next";
+import BuyModal from "@/components/dashboardComponents/Modal/BuyModal";
 
 interface IProps {
   children: React.ReactNode;
@@ -19,6 +20,7 @@ export default async function layout({ children }: IProps) {
   return (
     <SessionProvider session={session}>
       <div className="flex">
+        <BuyModal />
         <Sidebar />
         <div className="w-full">{children}</div>
       </div>

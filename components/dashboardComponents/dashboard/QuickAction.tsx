@@ -1,4 +1,6 @@
-import { ArrowUpDown, BellRing, Check, MoveUpRight } from "lucide-react";
+"use client";
+
+import { ArrowUpDown, MoveDownLeft, MoveUpRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -9,12 +11,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import Link from "next/link";
-import Empty from "./Empty";
+import { useBuyModalStore } from "@/hooks/use-buy-store";
 
 type CardProps = React.ComponentProps<typeof Card>;
 
 export function QuickAction({ className, ...props }: CardProps) {
+  const buyModal = useBuyModalStore();
+
   return (
     <Card className={cn("w-full md:w-[560px]", className)} {...props}>
       <CardHeader>
@@ -22,7 +25,23 @@ export function QuickAction({ className, ...props }: CardProps) {
           Quick actions
         </CardTitle>
       </CardHeader>
-      <CardContent>buttons</CardContent>
+      <CardContent>
+        <div className="flex flex-col w-full space-y-3">
+          <Button
+            onClick={buyModal.onOpen}
+            size="lg"
+            className="bg-transparent border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-full transition-all duration-500"
+          >
+            Buy
+          </Button>
+          <Button
+            size="lg"
+            className="bg-transparent border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-full transition-all duration-500"
+          >
+            Sell
+          </Button>
+        </div>
+      </CardContent>
       <CardFooter className="flex gap-4">
         <div className="flex flex-col justify-center items-center">
           <div className="bg-lime-100 hover:bg-lime-300 hover:shadow-md p-4 rounded-full">
@@ -38,7 +57,7 @@ export function QuickAction({ className, ...props }: CardProps) {
         </div>
         <div className="flex flex-col justify-center items-center">
           <div className="bg-orange-200 hover:bg-lime-300 hover:shadow-md p-4 rounded-full">
-            <MoveUpRight />
+            <MoveDownLeft />
           </div>
           <p className="text-lg capitalize">Recieve</p>
         </div>

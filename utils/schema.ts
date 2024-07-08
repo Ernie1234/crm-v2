@@ -36,6 +36,26 @@ export const userRegisterFormSchema = z.object({
     .max(25, { message: "Password must be less than 26 characters." }),
 });
 
+//USER PROFILE DETAIL EDIT FORM ZOD SCHEMA
+export const profileFormSchema = z.object({
+  firstName: z.string().min(1, {
+    message: "First name must be at least 1 characters.",
+  }),
+  lastName: z.string().min(1, {
+    message: "Last name must be at least 1 characters.",
+  }),
+  email: z.string().email("Invalid email address"),
+  phoneNumber: z
+    .string()
+    .min(10, "Phone number must be at least 10 characters long")
+    .max(15, "Phone number must be at most 15 characters long")
+    .regex(
+      /^[0-9+\s()-]+$/,
+      "Phone number must only contain digits, +, -, (), and spaces"
+    ),
+  imageurl: z.string(),
+});
+
 //ADD COMMODITY FORM ZOD SCHEMA
 export const commodityFormSchema = z.object({
   name: z.string().min(1, {

@@ -37,6 +37,11 @@ const nextConfig = {
         hostname: "cdni.iconscout.com",
         pathname: "**",
       },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "**",
+      },
     ],
   },
 };

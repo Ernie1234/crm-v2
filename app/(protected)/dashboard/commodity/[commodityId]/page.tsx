@@ -29,7 +29,7 @@ export default async function page({
   console.log(commodity);
 
   return (
-    <div className="w-full h-dvh">
+    <div className="w-full min-h-dvh">
       <Nav header="Commodity Market" />
       <div className="bg-gray-100 w-full min-h-dvh overflow-scroll no-scrollbar flex flex-col p-4">
         <div className="flex justify-between items-center mb-5">

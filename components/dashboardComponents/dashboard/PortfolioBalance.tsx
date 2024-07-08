@@ -1,6 +1,7 @@
 import { TbCurrencyNaira } from "react-icons/tb";
 import PortfolioChart from "./PortfolioChart";
 import { getAllCommodities } from "@/actions/commodity";
+import Chart from "./Chart";
 
 export default async function PortfolioBalance() {
   //   const commodity = await getAllCommodities();
@@ -22,6 +23,7 @@ export default async function PortfolioBalance() {
         <span className="text-xl">0</span>
       </h4>
       {/* <PortfolioChart data={comPrice} /> */}
+      <Chart />
     </div>
   );
 }

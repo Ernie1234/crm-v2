@@ -19,18 +19,20 @@ enum UserRole {
 }
 
 model User {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  firstName     String?
-  lastName      String?
-  name          String?
-  phoneNumber   String?
-  email         String?     @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          UserRole    @default(USER)
-  accounts      Account[]
-  commodity     Commodity[]
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  firstName       String?
+  lastName        String?
+  name            String?
+  phoneNumber     String?
+  email           String?        @unique
+  emailVerified   DateTime?
+  image           String?
+  password        String?
+  hasNotification Boolean        @default(false)
+  role            UserRole       @default(USER)
+  accounts        Account[]
+  commodity       Commodity[]
+  notification    Notification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -89,4 +91,13 @@ model Price {
   updatedAt   DateTime  @updatedAt
   commodityId String    @db.ObjectId
   commodity   Commodity @relation(fields: [commodityId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String?
+  body      String
+  createdAt DateTime @default(now())
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
