@@ -21,17 +21,17 @@ import { loginAction } from "@/actions/login";
 import { useState, useTransition } from "react";
 import FormSuccess from "./FormSuccess";
 import FormHeader from "./FormHeader";
-import { useSearchParams } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
 
 export default function LoginForm() {
   const [errors, setErrors] = useState<string | undefined>("");
   const [successs, setSuccesss] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
-  const searchParams = useSearchParams();
-  const urlError =
-    searchParams.get("error") === "OAuthAccountNotLinked"
-      ? "Email already linked"
-      : undefined;
+  // const searchParams = useSearchParams();
+  // const urlError =
+  //   searchParams.get("error") === "OAuthAccountNotLinked"
+  //     ? "Email already linked"
+  //     : undefined;
 
   const form = useForm<z.infer<typeof userLoginFormSchema>>({
     resolver: zodResolver(userLoginFormSchema),
@@ -119,7 +119,8 @@ export default function LoginForm() {
               />
             </div>
 
-            <FormError message={errors || urlError} />
+            {/* <FormError message={errors || urlError} /> */}
+            <FormError message={errors} />
             <FormSuccess message={successs} />
 
             <Button
