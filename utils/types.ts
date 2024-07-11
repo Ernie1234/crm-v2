@@ -19,3 +19,16 @@ export type TCommodity = {
     }
   ];
 };
+
+export type TUser = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  name: string | null;
+  password: string | null;
+  phoneNumber: string | null;
+  email: string | null;
+  emailVerified: Date | null;
+  image: string | null;
+  updatedAt: Date;
+};

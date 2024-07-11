@@ -10,14 +10,15 @@ import { getUserByEmail } from "./utils/data";
 export default {
   providers: [
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.AUTH_GOOGLE_CLIENT_ID,
+      clientSecret: process.env.AUTH_GOOGLE_CLIENT_SECRET,
     }),
     Facebook({
       clientId: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
     }),
     Credentials({
+      name: "Credentials",
       async authorize(credentials) {
         const validateFields = userLoginFormSchema.safeParse(credentials);
 
@@ -29,15 +30,18 @@ export default {
 
         const user = await getUserByEmail(email);
         if (!user || !user.password) {
-          return null;
+          return { error: "Invalids User!" };
         }
         const passwordsMatch = await bcrypt.compare(password, user.password);
 
         if (!passwordsMatch) {
           return { error: "Invalids credentials!" };
         }
+        if (user && passwordsMatch) {
+          return user;
+        }
 
-        return user;
+        return user as any;
       },
     }),
   ],

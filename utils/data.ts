@@ -3,6 +3,7 @@ import { ShoppingBasket } from "lucide-react";
 import { BsHouse } from "react-icons/bs";
 
 import { db } from "./db";
+import { TUser } from "./types";
 
 export const navLinks = [
   {
@@ -127,7 +128,7 @@ export const productData = [
   },
 ];
 
-export const getUserByEmail = async (email: string) => {
+export const getUserByEmail = async (email: string): Promise<TUser | null> => {
   try {
     const user = await db.user.findUnique({
       where: {
