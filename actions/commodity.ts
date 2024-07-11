@@ -95,6 +95,6 @@ export const updateCommodity = async (
     include: { user: true, price: true },
   });
 
-  // revalidatePath(`/dashboard/commodity/${commodity.id}`);
+  revalidatePath(`/dashboard/commodity/${commodity.id}`);
   return { success: "Commodity updated successful!" };
 };
