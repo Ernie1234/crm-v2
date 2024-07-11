@@ -1,10 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { IoMdClose } from "react-icons/io";
 import Button from "./Button";
 import { cn } from "@/lib/utils";
-import { relative } from "path";
 
 interface IModal {
   isOpen?: boolean;
@@ -17,7 +15,7 @@ interface IModal {
   disabled?: boolean;
   secondaryAction?: () => void;
   secondaryActionLabel?: string;
-  tab: Tabs;
+  tab?: Tabs;
 }
 
 enum Tabs {

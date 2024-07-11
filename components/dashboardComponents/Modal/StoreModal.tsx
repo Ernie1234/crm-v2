@@ -1,13 +1,16 @@
 "use client";
 
-import { useModalStore } from "@/hooks/use-store";
+import { useBuyModalStore } from "@/hooks/use-buy-store";
 import Modal from "./Modal";
 
 export default function StoreModal() {
-  const modalStore = useModalStore();
+  const modalStore = useBuyModalStore();
   return (
-    <Modal isOpen={modalStore.isOpen} onClose={modalStore.onClose}>
-      hello world
-    </Modal>
+    <Modal
+      onSubmit={() => console.log("first")}
+      actionLabel="submit"
+      isOpen={modalStore.isOpen}
+      onClose={modalStore.onClose}
+    />
   );
 }
