@@ -14,8 +14,8 @@ export default {
       clientSecret: process.env.AUTH_GOOGLE_CLIENT_SECRET,
     }),
     Facebook({
-      clientId: process.env.FACEBOOK_CLIENT_ID,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+      clientId: process.env.AUTH_FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.AUTH_FACEBOOK_CLIENT_SECRET,
     }),
     Credentials({
       name: "Credentials",

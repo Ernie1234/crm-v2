@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 interface IModal {
   isOpen?: boolean;
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit?: () => void;
   title?: string;
   body?: React.ReactElement;
   footer?: React.ReactElement;
@@ -55,20 +55,20 @@ const Modal = ({
     }, 300);
   }, [disabled, onClose]);
 
-  const handleSubmit = useCallback(() => {
-    if (disabled) {
-      return;
-    }
-    onSubmit();
-  }, [disabled, onSubmit]);
+  // const handleSubmit = useCallback(() => {
+  //   if (disabled) {
+  //     return;
+  //   }
+  //   onSubmit();
+  // }, [disabled, onSubmit]);
 
-  const handleSecondaryAction = useCallback(() => {
-    if (disabled || !secondaryAction) {
-      return;
-    }
+  // const handleSecondaryAction = useCallback(() => {
+  //   if (disabled || !secondaryAction) {
+  //     return;
+  //   }
 
-    secondaryAction();
-  }, [disabled, secondaryAction]);
+  //   secondaryAction();
+  // }, [disabled, secondaryAction]);
 
   if (!isOpen) return null;
 
@@ -134,9 +134,9 @@ const Modal = ({
                 </div>
               </div>
               {/*body*/}
-              <div className="relative p-4 flex-auto bg-red-400">{body}</div>
+              <div className="relative p-4 flex-auto">{body}</div>
               {/*footer*/}
-              <div className="flex flex-col gap-2 p-4">
+              {/* <div className="flex flex-col gap-2 p-4">
                 <div className="flex flex-col items-center gap-4 w-full">
                   <Button
                     label={actionLabel}
@@ -153,9 +153,9 @@ const Modal = ({
                       round="round-full"
                     />
                   )}
-                </div>
-                {footer}
-              </div>
+                </div> */}
+              {footer}
+              {/* </div> */}
             </div>
           </div>
         </div>
