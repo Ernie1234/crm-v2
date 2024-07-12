@@ -64,9 +64,7 @@ export default function BuyModal() {
   const modalStore = useBuyModalStore();
 
   const fetchFn = async () => {
-    // fetch commodity names from server
     const response = await getCommodityName();
-
     setCommodity(response);
   };
   useEffect(() => {
@@ -78,6 +76,14 @@ export default function BuyModal() {
   const form = useForm<z.infer<typeof buyModalSchema>>({
     resolver: zodResolver(buyModalSchema),
   });
+
+  const formState = form.watch([
+    "commodityName",
+    "cardNumber",
+    "cardHolderName",
+    "expiryDate",
+    "cvc",
+  ]);
 
   const actionLabel = useMemo(() => {
     if (selectedStep === STEPS.SELECT_INITIAL) {
@@ -125,18 +131,21 @@ export default function BuyModal() {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="py-3 h-12">
                           <SelectValue placeholder="Select a commodity" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="z-[100]">
                         {comName?.map((name) => (
                           <SelectItem
-                            className="p-3 text-lg flex"
+                            className="py-2 pl-8 pr-2 text-lg"
                             key={name}
                             value={name}
                           >
-                            {name}
+                            <div className="text-xl font-semibold flex gap-3">
+                              {name}
+                              {}
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -277,11 +286,11 @@ export default function BuyModal() {
                 </p>
                 <span></span>
               </div>
-              <div className="flex flex-col my-5 border">
+              <div className="flex flex-col my-5 border rounded-xl">
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
                   <p className="text-muted-foreground">Wallet</p>
                   <p className="text-lg font-medium text-gray-700">
-                    Maize (smz)
+                    {formState[0]}
                   </p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
@@ -289,11 +298,10 @@ export default function BuyModal() {
                   <p className="text-lg font-medium text-gray-700">N 20,000</p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">
-                    {}
-                    You recieve
+                  <p className="text-muted-foreground">You recieve</p>
+                  <p className="text-lg font-medium text-gray-700">
+                    {formState[3]}
                   </p>
-                  <p className="text-lg font-medium text-gray-700">3 smz</p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
                   <p className="text-muted-foreground">Fee</p>
