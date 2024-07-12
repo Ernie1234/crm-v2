@@ -26,8 +26,6 @@ export default async function page({
   const comPrice = commodity && commodity?.price.at(-1)?.price;
   const unitQty = commodity && commodity?.maxQuantity / commodity?.minQuantity;
 
-  console.log(commodity);
-
   return (
     <div className="w-full min-h-dvh">
       <Nav header="Commodity Market" />

@@ -26,6 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getCommodityName } from "@/actions/commodity";
+import { formatPrice } from "@/utils/fnLib";
+import { TbCurrencyNaira } from "react-icons/tb";
 
 interface IBuyModal {}
 
@@ -51,6 +53,7 @@ enum STEPS {
 }
 const buyModalSchema = z.object({
   commodityName: z.string(),
+  quantity: z.string(),
   cardNumber: z.string(),
   cardHolderName: z.string(),
   expiryDate: z.string(),
@@ -71,7 +74,8 @@ export default function BuyModal() {
     fetchFn();
   }, []);
 
-  const comName = commodity?.map((item) => item.name);
+  const min = commodity?.map((item) => item.minQuantity);
+  const max = commodity?.map((item) => item.maxQuantity);
 
   const form = useForm<z.infer<typeof buyModalSchema>>({
     resolver: zodResolver(buyModalSchema),
@@ -85,6 +89,14 @@ export default function BuyModal() {
     "cvc",
   ]);
 
+  const quantity = commodity?.filter((value) => {
+    const com = value.name === formState[0];
+
+    if (com) {
+      console.log(value.minQuantity);
+      return value.minQuantity;
+    }
+  });
   const actionLabel = useMemo(() => {
     if (selectedStep === STEPS.SELECT_INITIAL) {
       return "Continue";
@@ -136,20 +148,51 @@ export default function BuyModal() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="z-[100]">
-                        {comName?.map((name) => (
-                          <SelectItem
-                            className="py-2 pl-8 pr-2 text-lg"
-                            key={name}
-                            value={name}
-                          >
-                            <div className="text-xl font-semibold flex gap-3">
-                              {name}
-                              {}
-                            </div>
-                          </SelectItem>
-                        ))}
+                        {commodity?.map((item) => {
+                          const comPrice = item.price.at(-1)?.price;
+                          return (
+                            <SelectItem key={item.name} value={item.name}>
+                              <div className="flex items-center gap-4 uppercase">
+                                <span className="text-xl font-medium">
+                                  {item.name}
+                                </span>
+                                <span className="font-semibold text-muted-foreground">
+                                  {item.unit.replace("per ", "")}
+                                </span>
+                                <span className="font-semibold text-gray-800 py-0.5 px-2.5 bg-green-100 rounded-full ml-8 flex justify-center items-center text-lg">
+                                  <TbCurrencyNaira size={20} />
+                                  {comPrice && formatPrice(comPrice)}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="quantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base text-gray-700">
+                      Quantity
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="p-3 placeholder:text-lg"
+                        placeholder="Enter Quantity"
+                        {...field}
+                        type="range"
+                        min={0}
+                        max={100}
+                        step={25}
+                      />
+                    </FormControl>
 
                     <FormMessage />
                   </FormItem>
