@@ -59,6 +59,27 @@ export const getCommodityById = async (id: string) => {
   });
   return commodities;
 };
+export const getCommodityName = async () => {
+  try {
+    const commodities = await db.commodity.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        name: true,
+        unit: true,
+        minQuantity: true,
+        maxQuantity: true,
+        price: {
+          select: {
+            price: true,
+          },
+        },
+      },
+    });
+    return commodities;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export const updateCommodity = async (
   values: z.infer<typeof editCommodityFormSchema>,

@@ -1,12 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { ArrowLeft } from "lucide-react";
 import * as z from "zod";
 
-import Modal from "./Modal";
-import { useBuyModalStore } from "@/hooks/use-buy-store";
 import {
   Form,
   FormControl,
@@ -17,9 +16,28 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { useBuyModalStore } from "@/hooks/use-buy-store";
+import Modal from "./Modal";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getCommodityName } from "@/actions/commodity";
 
 interface IBuyModal {}
+
+interface IBuy {
+  name: string;
+  price: {
+    price: number;
+  }[];
+  unit: string;
+  minQuantity: number;
+  maxQuantity: number;
+}
 
 enum Tabs {
   BUY,
@@ -42,13 +60,23 @@ const buyModalSchema = z.object({
 export default function BuyModal() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedStep, setSelectedStep] = useState(STEPS.SELECT_INITIAL);
+  const [commodity, setCommodity] = useState<IBuy[] | undefined>([]);
   const modalStore = useBuyModalStore();
+
+  const fetchFn = async () => {
+    // fetch commodity names from server
+    const response = await getCommodityName();
+
+    setCommodity(response);
+  };
+  useEffect(() => {
+    fetchFn();
+  }, []);
+
+  const comName = commodity?.map((item) => item.name);
 
   const form = useForm<z.infer<typeof buyModalSchema>>({
     resolver: zodResolver(buyModalSchema),
-    defaultValues: {
-      commodityName: "",
-    },
   });
 
   const actionLabel = useMemo(() => {
@@ -63,6 +91,7 @@ export default function BuyModal() {
 
   function onSubmit(values: z.infer<typeof buyModalSchema>) {
     console.log(values);
+    form.reset();
   }
 
   const onBack = () => {
@@ -88,10 +117,30 @@ export default function BuyModal() {
                 name="commodityName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Commodity Wallet</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Maize" {...field} />
-                    </FormControl>
+                    <FormLabel className="text-base text-gray-700">
+                      Commodity Wallet
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a commodity" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="z-[100]">
+                        {comName?.map((name) => (
+                          <SelectItem
+                            className="p-3 text-lg flex"
+                            key={name}
+                            value={name}
+                          >
+                            {name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
                     <FormMessage />
                   </FormItem>
@@ -240,7 +289,10 @@ export default function BuyModal() {
                   <p className="text-lg font-medium text-gray-700">N 20,000</p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">You recieve</p>
+                  <p className="text-muted-foreground">
+                    {}
+                    You recieve
+                  </p>
                   <p className="text-lg font-medium text-gray-700">3 smz</p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">

@@ -74,7 +74,7 @@ const Modal = ({
 
   return (
     <div className={cn(isOpen ? "flex" : "hidden")}>
-      <div className="justify-center flex items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-[100] outline-none focus:outline-none bg-neutral-800/70 max-h-screen">
+      <div className="justify-center flex items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-[70] outline-none focus:outline-none bg-neutral-800/70 max-h-screen">
         <div className="relative w-full md:w-4/6 lg:w-3/6 xl:w-2/5 my-6 mx-auto h-full md:h-auto lg:h-auto">
           {/*content*/}
           <div
