@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getCommodityName } from "@/actions/commodity";
-import { formatPrice } from "@/utils/fnLib";
+import { formatPrice, maskNumber } from "@/utils/fnLib";
 import { TbCurrencyNaira } from "react-icons/tb";
 
 interface IBuyModal {}
@@ -54,6 +54,7 @@ enum STEPS {
 const buyModalSchema = z.object({
   commodityName: z.string(),
   quantity: z.string(),
+  paymentMethod: z.string(),
   cardNumber: z.string(),
   cardHolderName: z.string(),
   expiryDate: z.string(),
@@ -74,29 +75,21 @@ export default function BuyModal() {
     fetchFn();
   }, []);
 
-  const min = commodity?.map((item) => item.minQuantity);
-  const max = commodity?.map((item) => item.maxQuantity);
-
   const form = useForm<z.infer<typeof buyModalSchema>>({
     resolver: zodResolver(buyModalSchema),
   });
 
-  const formState = form.watch([
-    "commodityName",
-    "cardNumber",
-    "cardHolderName",
-    "expiryDate",
-    "cvc",
-  ]);
+  const formState = form.watch(["commodityName", "quantity", "cardNumber"]);
 
-  const quantity = commodity?.filter((value) => {
-    const com = value.name === formState[0];
-
-    if (com) {
-      console.log(value.minQuantity);
-      return value.minQuantity;
-    }
+  const quantity = commodity?.find((value) => {
+    return value.name === formState[0];
   });
+  const min = quantity?.minQuantity;
+  const max = quantity?.maxQuantity;
+  const unit = quantity?.unit;
+  const price = quantity && quantity?.price.at(-1)?.price;
+  const charge = 311;
+
   const actionLabel = useMemo(() => {
     if (selectedStep === STEPS.SELECT_INITIAL) {
       return "Continue";
@@ -179,20 +172,55 @@ export default function BuyModal() {
                 name="quantity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base text-gray-700">
-                      Quantity
+                    <FormLabel className="text-base text-gray-700 flex justify-between items-center gap-3">
+                      <span className="">{min}</span>
+                      <span className="">{formState[1]}</span>
+                      {max}
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="p-3 placeholder:text-lg"
+                        className="p-3 placeholder:text-lg w-full h-2 bg-green-200 rounded-full appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75"
                         placeholder="Enter Quantity"
                         {...field}
                         type="range"
-                        min={0}
-                        max={100}
-                        step={25}
+                        min={min || 1}
+                        max={max || 10}
+                        step={1}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="paymentMethod"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base text-gray-700">
+                      Payment Method
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="py-3 h-12">
+                          <SelectValue
+                            className="text-lg"
+                            placeholder="Select payment method"
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="z-[100]">
+                        <SelectItem className="text-lg uppercase" value="USSD">
+                          USSD
+                        </SelectItem>
+                        <SelectItem className="text-lg uppercase" value="CARD">
+                          CARD
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
 
                     <FormMessage />
                   </FormItem>
@@ -338,23 +366,36 @@ export default function BuyModal() {
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
                   <p className="text-muted-foreground">Amount Bought</p>
-                  <p className="text-lg font-medium text-gray-700">N 20,000</p>
+                  <p className="text-lg font-medium text-gray-700">
+                    N{" "}
+                    {price &&
+                      formatPrice((Number(formState[1]) * price ?? 1) + charge)}
+                  </p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
                   <p className="text-muted-foreground">You recieve</p>
                   <p className="text-lg font-medium text-gray-700">
-                    {formState[3]}
+                    N {price && formatPrice(Number(formState[1]) * price ?? 1)}
                   </p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Fee</p>
-                  <p className="text-lg font-medium text-gray-700">N311</p>
+                  <p className="text-muted-foreground">Fee/Charges</p>
+                  <p className="text-lg font-medium text-gray-700">
+                    N {charge}
+                  </p>
                 </div>
 
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
                   <p className="text-muted-foreground">Rate</p>
                   <p className="text-lg font-medium text-gray-700">
-                    N10,00/smz
+                    N{price && formatPrice(price)}/
+                    {unit && unit.replace("per ", "")}
+                  </p>
+                </div>
+                <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
+                  <p className="text-muted-foreground">Payment Method</p>
+                  <p className="text-lg font-medium text-gray-700">
+                    {formState[2] && maskNumber(Number(formState[2]))}
                   </p>
                 </div>
               </div>
