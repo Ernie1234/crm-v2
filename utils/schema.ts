@@ -82,3 +82,13 @@ export const editCommodityFormSchema = z.object({
     message: "Price must not be less than 1.",
   }),
 });
+//BUY COMMODITY FORM ZOD SCHEMA
+export const buyModalSchema = z.object({
+  commodityName: z.string(),
+  quantity: z.string(),
+  paymentMethod: z.string(),
+  cardNumber: z.string(),
+  cardHolderName: z.string(),
+  expiryDate: z.string(),
+  cvc: z.string(),
+});

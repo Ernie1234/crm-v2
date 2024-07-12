@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ArrowLeft } from "lucide-react";
+import { TbCurrencyNaira } from "react-icons/tb";
 import * as z from "zod";
 
 import {
@@ -25,11 +26,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "@/components/ui/use-toast";
 import { getCommodityName } from "@/actions/commodity";
+import { makeTransaction } from "@/actions/transaction";
 import { formatPrice, maskNumber } from "@/utils/fnLib";
-import { TbCurrencyNaira } from "react-icons/tb";
-
-interface IBuyModal {}
+import { buyModalSchema } from "@/utils/schema";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 interface IBuy {
   name: string;
@@ -51,21 +53,15 @@ enum STEPS {
   SELECT_PAYMENT = 1,
   SELECT_DETAILS = 2,
 }
-const buyModalSchema = z.object({
-  commodityName: z.string(),
-  quantity: z.string(),
-  paymentMethod: z.string(),
-  cardNumber: z.string(),
-  cardHolderName: z.string(),
-  expiryDate: z.string(),
-  cvc: z.string(),
-});
 
 export default function BuyModal() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [selectedStep, setSelectedStep] = useState(STEPS.SELECT_INITIAL);
   const [commodity, setCommodity] = useState<IBuy[] | undefined>([]);
   const modalStore = useBuyModalStore();
+
+  const user = useCurrentUser();
+  const email = user?.email;
 
   const fetchFn = async () => {
     const response = await getCommodityName();
@@ -89,6 +85,7 @@ export default function BuyModal() {
   const unit = quantity?.unit;
   const price = quantity && quantity?.price.at(-1)?.price;
   const charge = 311;
+  const totalPrice = price && formatPrice(Number(formState[1]) * price ?? 1);
 
   const actionLabel = useMemo(() => {
     if (selectedStep === STEPS.SELECT_INITIAL) {
@@ -102,6 +99,25 @@ export default function BuyModal() {
 
   function onSubmit(values: z.infer<typeof buyModalSchema>) {
     console.log(values);
+
+    startTransition(() => {
+      makeTransaction(values, email as string, totalPrice as number).then(
+        (data) => {
+          if (data?.error) {
+            toast({
+              description: data.error,
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              description: data.success,
+              variant: "default",
+            });
+          }
+        }
+      );
+    });
+
     form.reset();
   }
 
@@ -230,7 +246,7 @@ export default function BuyModal() {
               <div className="flex flex-col items-center gap-2 w-full">
                 <Button
                   className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-green-700 hover:bg-green-600 rounded-full border-green-700 text-white"
-                  disabled={isLoading}
+                  disabled={isPending}
                   onClick={onNext}
                 >
                   Continue
@@ -238,7 +254,7 @@ export default function BuyModal() {
 
                 <Button
                   className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-background hover:bg-white border border-transparent hover:border-gray-800 text-gray-600 hover:text-gray-800 rounded-full"
-                  disabled={isLoading}
+                  disabled={isPending}
                   onClick={modalStore.onClose}
                 >
                   Cancel
@@ -341,7 +357,7 @@ export default function BuyModal() {
               <div className="flex justify-center items-center gap-2 w-full mt-8">
                 <Button
                   className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-green-700 hover:bg-green-600 rounded-full border-green-700 text-white"
-                  disabled={isLoading}
+                  disabled={isPending}
                   onClick={onNext}
                 >
                   Next
@@ -369,7 +385,7 @@ export default function BuyModal() {
                   <p className="text-lg font-medium text-gray-700">
                     N{" "}
                     {price &&
-                      formatPrice((Number(formState[1]) * price ?? 1) + charge)}
+                      formatPrice(Number(formState[1]) * price ?? 1) + charge}
                   </p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
@@ -414,7 +430,7 @@ export default function BuyModal() {
 
   return (
     <Modal
-      disabled={isLoading}
+      disabled={isPending}
       isOpen={modalStore.isOpen}
       onClose={modalStore.onClose}
       actionLabel={actionLabel}
