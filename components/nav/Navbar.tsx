@@ -45,6 +45,18 @@ export default function Navbar() {
                   </li>
                 ))}
               </ul>
+              <div className="flex flex-col sm:hidden items-center gap-4 mt-4">
+                <Link href="/auth/register">
+                  <Button className="bg-green-foreground hover:bg-green-600 text-green font-semibold">
+                    Sign up
+                  </Button>
+                </Link>
+                <Link href="/auth/login">
+                  <Button className="bg-green-950 hover:bg-green-900">
+                    Sign In
+                  </Button>
+                </Link>
+              </div>
             </SheetContent>
           </Sheet>
         </div>

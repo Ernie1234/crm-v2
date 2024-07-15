@@ -97,28 +97,38 @@ export default function BuyModal() {
     return "Buy Now";
   }, [selectedStep]);
 
-  function onSubmit(values: z.infer<typeof buyModalSchema>) {
+  async function onSubmit(values: z.infer<typeof buyModalSchema>) {
     console.log(values);
 
-    startTransition(() => {
-      makeTransaction(values, email as string, totalPrice as number).then(
-        (data) => {
-          if (data?.error) {
-            toast({
-              description: data.error,
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              description: data.success,
-              variant: "default",
-            });
-          }
-        }
-      );
+    const response = await fetch("/api/transaction", {
+      method: "POST",
+      body: JSON.stringify(values),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
+    console.log(response);
+    // const data = await response.json();
+    // console.log(data);
 
-    form.reset();
+    // startTransition(() => {
+    //   makeTransaction(values, email as string, totalPrice as number).then(
+    //     (data) => {
+    //       if (data?.error) {
+    //         toast({
+    //           description: data.error,
+    //           variant: "destructive",
+    //         });
+    //       } else {
+    //         toast({
+    //           description: data.success,
+    //           variant: "default",
+    //         });
+    //       }
+    //     }
+    //   );
+    // });
+    // form.reset();
   }
 
   const onBack = () => {
