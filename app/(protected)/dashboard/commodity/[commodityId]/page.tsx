@@ -12,6 +12,7 @@ import Nav from "@/components/dashboardComponents/Nav";
 import AboutCommodity from "@/components/dashboardComponents/commodity/AboutCommodity";
 import serverCurrentUser from "@/app/_components/serverCurrentUser";
 import EditCommodity from "@/components/dashboardComponents/commodity/EditCommodity";
+import { QuickAction } from "@/components/dashboardComponents/dashboard/QuickAction";
 
 export default async function page({
   params,
@@ -122,7 +123,9 @@ export default async function page({
               desc={commodity?.description}
             />
           </div>
-          <div className="bg-violet-500 p-5 col-span-1"></div>
+          <div className="col-span-1 md:col-span-1 flex flex-col gap-8">
+            <QuickAction />
+          </div>
         </div>
       </div>
     </div>

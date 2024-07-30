@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ArrowLeft } from "lucide-react";
@@ -26,12 +26,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "@/components/ui/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
 import { getCommodityName } from "@/actions/commodity";
-import { makeTransaction } from "@/actions/transaction";
 import { formatPrice, maskNumber } from "@/utils/fnLib";
 import { buyModalSchema } from "@/utils/schema";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import Link from "next/link";
 
 interface IBuy {
   name: string;
@@ -55,10 +63,12 @@ enum STEPS {
 }
 
 export default function BuyModal() {
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setLoading] = useState(false);
   const [selectedStep, setSelectedStep] = useState(STEPS.SELECT_INITIAL);
   const [commodity, setCommodity] = useState<IBuy[] | undefined>([]);
   const modalStore = useBuyModalStore();
+  const [open, setOpen] = useState(false);
+  const [data, setData] = useState("");
 
   const user = useCurrentUser();
   const email = user?.email;
@@ -87,6 +97,10 @@ export default function BuyModal() {
   const charge = 311;
   const totalPrice = price && formatPrice(Number(formState[1]) * price ?? 1);
 
+  const onOpenChange = () => {
+    setOpen((prev) => !prev);
+  };
+
   const actionLabel = useMemo(() => {
     if (selectedStep === STEPS.SELECT_INITIAL) {
       return "Continue";
@@ -98,37 +112,24 @@ export default function BuyModal() {
   }, [selectedStep]);
 
   async function onSubmit(values: z.infer<typeof buyModalSchema>) {
-    console.log(values);
-
-    const response = await fetch("/api/transaction", {
-      method: "POST",
-      body: JSON.stringify(values),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    console.log(response);
-    // const data = await response.json();
-    // console.log(data);
-
-    // startTransition(() => {
-    //   makeTransaction(values, email as string, totalPrice as number).then(
-    //     (data) => {
-    //       if (data?.error) {
-    //         toast({
-    //           description: data.error,
-    //           variant: "destructive",
-    //         });
-    //       } else {
-    //         toast({
-    //           description: data.success,
-    //           variant: "default",
-    //         });
-    //       }
-    //     }
-    //   );
-    // });
-    // form.reset();
+    try {
+      setLoading(true);
+      const response = await fetch("/api/transaction", {
+        method: "POST",
+        body: JSON.stringify({ ...values, totalPrice, email, unit }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      setLoading(false);
+      console.log(data);
+      setData(data.success);
+      modalStore.onClose();
+      // onOpenChange();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   const onBack = () => {
@@ -256,7 +257,7 @@ export default function BuyModal() {
               <div className="flex flex-col items-center gap-2 w-full">
                 <Button
                   className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-green-700 hover:bg-green-600 rounded-full border-green-700 text-white"
-                  disabled={isPending}
+                  disabled={isLoading}
                   onClick={onNext}
                 >
                   Continue
@@ -264,7 +265,7 @@ export default function BuyModal() {
 
                 <Button
                   className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-background hover:bg-white border border-transparent hover:border-gray-800 text-gray-600 hover:text-gray-800 rounded-full"
-                  disabled={isPending}
+                  disabled={isLoading}
                   onClick={modalStore.onClose}
                 >
                   Cancel
@@ -367,7 +368,7 @@ export default function BuyModal() {
               <div className="flex justify-center items-center gap-2 w-full mt-8">
                 <Button
                   className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-green-700 hover:bg-green-600 rounded-full border-green-700 text-white"
-                  disabled={isPending}
+                  disabled={isLoading}
                   onClick={onNext}
                 >
                   Next
@@ -393,15 +394,14 @@ export default function BuyModal() {
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
                   <p className="text-muted-foreground">Amount Bought</p>
                   <p className="text-lg font-medium text-gray-700">
-                    N{" "}
-                    {price &&
-                      formatPrice(Number(formState[1]) * price ?? 1) + charge}
+                    N {totalPrice && totalPrice + charge}
                   </p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
                   <p className="text-muted-foreground">You recieve</p>
                   <p className="text-lg font-medium text-gray-700">
-                    N {price && formatPrice(Number(formState[1]) * price ?? 1)}
+                    {/* N {price && formatPrice(Number(formState[1]) * price ?? 1)} */}
+                    {formState[1]} {unit && unit.replace("per ", "")}
                   </p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
@@ -439,20 +439,43 @@ export default function BuyModal() {
   );
 
   return (
-    <Modal
-      disabled={isPending}
-      isOpen={modalStore.isOpen}
-      onClose={modalStore.onClose}
-      actionLabel={actionLabel}
-      onSubmit={() => onNext()}
-      secondaryActionLabel={
-        selectedStep !== STEPS.SELECT_INITIAL ? "" : "Cancel"
-      }
-      secondaryAction={
-        selectedStep === STEPS.SELECT_INITIAL ? modalStore.onClose : onBack
-      }
-      body={bodyContent}
-      tab={Tabs.BUY}
-    />
+    <>
+      <Modal
+        disabled={isLoading}
+        isOpen={modalStore.isOpen}
+        onClose={modalStore.onClose}
+        actionLabel={actionLabel}
+        onSubmit={() => onNext()}
+        secondaryActionLabel={
+          selectedStep !== STEPS.SELECT_INITIAL ? "" : "Cancel"
+        }
+        secondaryAction={
+          selectedStep === STEPS.SELECT_INITIAL ? modalStore.onClose : onBack
+        }
+        body={bodyContent}
+        tab={Tabs.BUY}
+      />
+      <Dialog open={open}>
+        <DialogContent className="sm:max-w-[425px]">
+          <div className="grid gap-2 py-4">
+            <h5 className="text-3xl font-medium text-center">Yay! 🎉</h5>
+            <p className="text-center text-xl -mb-2">
+              Your transaction is on the way
+            </p>
+            <p className="text-center">{data && data}</p>
+            <div className="flex justify-center items-center -mb-5 mt-2">
+              <Link
+                href="/dashboard/transaction"
+                onClick={onOpenChange}
+                className="rounded-full text-green-700 font-medium border-green-700 px-12 py-2 hover:bg-green-700 hover:text-white transition-all duration-500 border"
+                type="submit"
+              >
+                View details
+              </Link>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

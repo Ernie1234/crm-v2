@@ -1,37 +1,58 @@
+import { auth } from "@/auth";
 import { getUserByEmail } from "@/utils/data";
 import { db } from "@/utils/db";
-import { buyModalSchema } from "@/utils/schema";
-import { z } from "zod";
+import axios from "axios";
 
-export const makeTransaction = async (
-  values: z.infer<typeof buyModalSchema>,
-  email: string,
-  totalPrice: number
-) => {
-  const validateFields = buyModalSchema.safeParse(values);
-  if (!validateFields.success) {
-    return { error: "Invalid fields!" };
+// const getVerification = async (reference: string) => {
+//   const res = await axios.get(
+//     `https://api.paystack.co/transaction/verify/${reference}`,
+//     {
+//       headers: {
+//         Authorization: `Bearer sk_test_571a22a4316ab090832bd2e898d8b9535d8d210e`,
+//       },
+//     }
+//   );
+//   const verificationStatus = await res;
+//   return verificationStatus;
+// };
+
+const apiKey = process.env.NEXT_PAYSTACK_API_KEY;
+
+export const getTransaction = async () => {
+  try {
+    const session = await auth();
+    if (session === null || !session.user)
+      return { error: "Authentication failed!" };
+
+    const userEmail = session.user.email;
+    if (userEmail === null || !userEmail)
+      return { error: "Authentication failed!" };
+
+    const user = await getUserByEmail(userEmail);
+    if (!user) return { error: "Authentication failed!" };
+
+    const trans = await db.transaction.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const ref = trans.map(async (tran) => {
+      const res = await axios.get(
+        `https://api.paystack.co/transaction/verify/${tran.reference}`,
+        {
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+          },
+        }
+      );
+      const verificationData = await res.data.data;
+
+      return { ...tran, ...verificationData };
+    });
+
+    const finalResult = await Promise.all(ref);
+    return finalResult;
+  } catch (error) {
+    console.log(error);
   }
-  const price = Number(validateFields.data?.quantity);
-  const cost = Number(totalPrice);
-
-  const user = await getUserByEmail(email);
-
-  if (!user) return { error: "Authentication failed!" };
-
-  //Todo: IMPLEMENT PAYSTACK UI HERE
-
-  const transaction = await db.transaction.create({
-    data: {
-      userId: user.id,
-      commodityName: validateFields.data.commodityName,
-      price: cost,
-      type: "BOUGHT",
-    },
-  });
-  console.log(transaction);
-
-  // Todo: Send notification to the customer
-
-  return { success: true, message: "Transaction successful!" };
 };

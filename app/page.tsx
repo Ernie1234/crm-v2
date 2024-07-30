@@ -1,7 +1,7 @@
 import DashedStroke from "@/components/DashedStroke";
 import Header from "@/components/Homepage/Header";
 import HeaderImage from "@/components/Homepage/HeaderImage";
-import Newletter from "@/components/Homepage/Newletter";
+import Newsletter from "@/components/Homepage/Newsletter";
 import Pricing from "@/components/Homepage/Pricing";
 import Revolution from "@/components/Homepage/Revolution";
 import Testimonial from "@/components/Homepage/Testimonial";
@@ -31,7 +31,7 @@ export default function Home() {
         </section>
         <DashedStroke />
       </section>
-      <Newletter />
+      <Newsletter />
       <Footer />
     </>
   );

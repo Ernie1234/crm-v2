@@ -21,7 +21,7 @@ const newsLetterFormSchema = z.object({
   email: z.string().email(),
 });
 
-const Newletter = () => {
+const Newsletter = () => {
   const form = useForm<z.infer<typeof newsLetterFormSchema>>({
     resolver: zodResolver(newsLetterFormSchema),
   });
@@ -77,4 +77,4 @@ const Newletter = () => {
   );
 };
 
-export default Newletter;
+export default Newsletter;

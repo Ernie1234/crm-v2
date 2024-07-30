@@ -57,7 +57,6 @@ export default async function page() {
           {commodities.length !== 0 && (
             <div className="mt-8 border rounded-2xl bg-white">
               <Table>
-                {/* <TableCaption>A list of your recent commodity.</TableCaption> */}
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[100px] text-center">

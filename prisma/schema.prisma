@@ -40,6 +40,7 @@ model User {
   commodity       Commodity[]
   notification    Notification[]
   transaction     Transaction[]
+  portfolio       Portfolio[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -89,6 +90,8 @@ model Commodity {
   updatedAt   DateTime @updatedAt
   userId      String   @db.ObjectId
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Portfolio   Portfolio? @relation(fields: [portfolioId], references: [id])
+  // portfolioId String?    @db.ObjectId
 }
 
 model Price {
@@ -113,9 +116,23 @@ model Transaction {
   id            String          @id @default(auto()) @map("_id") @db.ObjectId
   commodityName String
   type          TransactionType
+  quantity      Int
+  status        String?
+  reference     String
+  unit          String
   price         Int
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   userId        String          @db.ObjectId
   user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Portfolio {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+  // commodities Commodity[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

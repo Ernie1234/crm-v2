@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import Button from "./Button";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface IModal {
@@ -24,51 +23,13 @@ enum Tabs {
   SWAP,
 }
 
-const Modal = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  title,
-  body,
-  footer,
-  actionLabel,
-  disabled,
-  secondaryAction,
-  secondaryActionLabel,
-  tab,
-}: IModal) => {
+const Modal = ({ isOpen, body, footer, tab }: IModal) => {
   const [showModal, setShowModal] = useState(isOpen);
   const [activeTab, setActiveTab] = useState(tab);
 
   useEffect(() => {
     setShowModal(isOpen);
   }, [isOpen]);
-
-  const handleClose = useCallback(() => {
-    if (disabled) {
-      return;
-    }
-
-    setShowModal(false);
-    setTimeout(() => {
-      onClose();
-    }, 300);
-  }, [disabled, onClose]);
-
-  // const handleSubmit = useCallback(() => {
-  //   if (disabled) {
-  //     return;
-  //   }
-  //   onSubmit();
-  // }, [disabled, onSubmit]);
-
-  // const handleSecondaryAction = useCallback(() => {
-  //   if (disabled || !secondaryAction) {
-  //     return;
-  //   }
-
-  //   secondaryAction();
-  // }, [disabled, secondaryAction]);
 
   if (!isOpen) return null;
 
@@ -133,29 +94,8 @@ const Modal = ({
                   </p>
                 </div>
               </div>
-              {/*body*/}
               <div className="relative p-4 flex-auto">{body}</div>
-              {/*footer*/}
-              {/* <div className="flex flex-col gap-2 p-4">
-                <div className="flex flex-col items-center gap-4 w-full">
-                  <Button
-                    label={actionLabel}
-                    disabled={disabled}
-                    onClick={handleSubmit}
-                    round="round-full"
-                  />
-                  {secondaryAction && secondaryActionLabel && (
-                    <Button
-                      label={secondaryActionLabel}
-                      disabled={disabled}
-                      onClick={handleSecondaryAction}
-                      outline
-                      round="round-full"
-                    />
-                  )}
-                </div> */}
               {footer}
-              {/* </div> */}
             </div>
           </div>
         </div>
