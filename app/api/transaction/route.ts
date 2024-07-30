@@ -57,7 +57,7 @@ export async function POST(req: Request) {
       }
     );
 
-    const ref = response.data.data.reference;
+    const ref = await response.data.data.reference;
 
     const trans = await db.transaction.create({
       data: {
@@ -82,9 +82,6 @@ export async function POST(req: Request) {
       "Error processing payment:",
       error.response?.data || error.message
     );
-    return NextResponse.json(
-      { error: "Error processing payment" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Error processing payment" });
   }
 }
