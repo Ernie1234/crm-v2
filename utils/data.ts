@@ -179,3 +179,16 @@ export const getVerificationTokenByEmail = async (email: string) => {
     return null;
   }
 };
+
+export const getPortfolioCommodityName = async (name: string) => {
+  try {
+    const portfolioCommodity = await db.portfolio.findUnique({
+      where: {
+        commodityName: name,
+      },
+    });
+    return portfolioCommodity;
+  } catch {
+    return null;
+  }
+};

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import axios from "axios";
 import { db } from "@/utils/db";
 import { TransactionType } from "@prisma/client";
@@ -6,7 +6,7 @@ import { getUserByEmail } from "@/utils/data";
 
 const apiKey = process.env.NEXT_PAYSTACK_API_KEY;
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const {
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
       }
     );
 
-    const ref = await response.data.data.reference;
+    const ref = (await response.data.data.reference) as string;
 
     const trans = await db.transaction.create({
       data: {
@@ -71,10 +71,33 @@ export async function POST(req: Request) {
         reference: ref,
       },
     });
+    if (!trans) return Response.json({ error: "Transaction failed!" });
 
-    return NextResponse.json({
+    const portfolio = await db.portfolio.findUnique({
+      where: { userId },
+    });
+
+    console.log(portfolio);
+    if (!portfolio?.balance === undefined || portfolio === null)
+      return Response.json({ error: "Portfolio not found!" });
+
+    await db.portfolio.upsert({
+      where: { userId, commodityName },
+      update: {
+        totalQuantity: portfolio?.totalQuantity + quantity,
+        balance: portfolio.balance + trans.price,
+      },
+      create: {
+        userId,
+        commodityName,
+        totalQuantity: quantity,
+        balance: price,
+      },
+    });
+
+    return Response.json({
       success: `You successfully sent (#${price}) to buy ${quantity} ${unit}`,
-      trans,
+      ...trans,
     });
   } catch (error: any) {
     console.log(error);
@@ -82,6 +105,6 @@ export async function POST(req: Request) {
       "Error processing payment:",
       error.response?.data || error.message
     );
-    return NextResponse.json({ error: "Error processing payment" });
+    return Response.json({ error: "Error processing payment" });
   }
 }

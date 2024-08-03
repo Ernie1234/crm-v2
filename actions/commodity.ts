@@ -50,6 +50,7 @@ export const getAllCommodities = async () => {
   });
   return commodities;
 };
+
 export const getCommodityById = async (id: string) => {
   const commodities = await db.commodity.findUnique({
     where: {
@@ -59,6 +60,7 @@ export const getCommodityById = async (id: string) => {
   });
   return commodities;
 };
+
 export const getCommodityName = async () => {
   try {
     const commodities = await db.commodity.findMany({

@@ -40,6 +40,7 @@ import { formatPrice, maskNumber } from "@/utils/fnLib";
 import { buyModalSchema } from "@/utils/schema";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import Link from "next/link";
+import { toast } from "@/components/ui/use-toast";
 
 interface IBuy {
   name: string;
@@ -123,12 +124,15 @@ export default function BuyModal() {
       });
       const data = await response.json();
       setLoading(false);
-      console.log(data);
       setData(data.success);
       modalStore.onClose();
-      // onOpenChange();
-    } catch (error) {
-      console.log(error);
+      onOpenChange();
+    } catch (error: any) {
+      toast({
+        description: error,
+        variant: "destructive",
+      });
+      // console.log(error);
     }
   }
 
@@ -428,8 +432,9 @@ export default function BuyModal() {
               <Button
                 className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-green-700 hover:bg-green-600 rounded-full border-green-700 text-white"
                 type="submit"
+                disabled={isLoading}
               >
-                Buy Now
+                {isLoading ? "Loading..." : "Buy Now"}
               </Button>
             </div>
           )}

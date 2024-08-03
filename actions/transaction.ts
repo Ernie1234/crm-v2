@@ -3,19 +3,6 @@ import { getUserByEmail } from "@/utils/data";
 import { db } from "@/utils/db";
 import axios from "axios";
 
-// const getVerification = async (reference: string) => {
-//   const res = await axios.get(
-//     `https://api.paystack.co/transaction/verify/${reference}`,
-//     {
-//       headers: {
-//         Authorization: `Bearer sk_test_571a22a4316ab090832bd2e898d8b9535d8d210e`,
-//       },
-//     }
-//   );
-//   const verificationStatus = await res;
-//   return verificationStatus;
-// };
-
 const apiKey = process.env.NEXT_PAYSTACK_API_KEY;
 
 export const getTransaction = async () => {
