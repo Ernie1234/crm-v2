@@ -1,8 +1,21 @@
-import { Plus } from "lucide-react";
+import { ChevronsUpDown, Plus } from "lucide-react";
 import Link from "next/link";
 import Empty from "./Empty";
+import { TPortfolioCommodity } from "@/utils/types";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import PortfolioRow from "../portfolio/PortfolioRow";
 
-export default function YourCommodity() {
+interface Props {
+  portfolio: TPortfolioCommodity[];
+}
+
+export default function YourCommodity({ portfolio }: Props) {
   return (
     <div className="flex flex-col gap-3 w-full">
       <div className="flex justify-between items-center">
@@ -13,18 +26,48 @@ export default function YourCommodity() {
           </button>
         </Link>
       </div>
-      <div className="bg-white p-4 rounded-lg border border-gray-200 h-full shadow-sm">
-        {/* Commodity cards */}
-
-        {/* Empty Commodity cards */}
-        <div className="flex w-full justify-center items-center">
-          <Empty
-            title="No commodities"
-            subtitle="Your commodites will appear here"
-            showBtn
-            btnTitle="Explore Commodity"
-          />
-        </div>
+      <div className="shadow-sm">
+        {portfolio?.length === 0 ? (
+          <div className="bg-white p-4 border border-gray-200 h-full shadow-sm rounded-xl">
+            <div className="flex w-full justify-center items-center">
+              <Empty
+                title="No commodities"
+                subtitle="Your commodities will appear here"
+                showBtn
+                btnTitle="Explore Commodity"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="mt-0 border rounded-2xl bg-white">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="flex gap-2 justify-start items-center">
+                    Commodity <ChevronsUpDown size={18} />
+                  </TableHead>
+                  <TableHead>Balance</TableHead>
+                  <TableHead>7d%</TableHead>
+                  <TableHead>Chart</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="px-8">
+                {portfolio.map((commodity, index) => {
+                  return (
+                    <PortfolioRow
+                      id={commodity.id}
+                      index={index}
+                      price={commodity.balance}
+                      quantity={commodity.totalQuantity}
+                      name={commodity.commodityName}
+                      key={index}
+                    />
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </div>
     </div>
   );

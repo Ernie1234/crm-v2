@@ -73,27 +73,28 @@ export async function POST(req: NextRequest) {
     });
     if (!trans) return Response.json({ error: "Transaction failed!" });
 
-    const portfolio = await db.portfolio.findUnique({
-      where: { userId },
-    });
-
-    console.log(portfolio);
-    if (!portfolio?.balance === undefined || portfolio === null)
-      return Response.json({ error: "Portfolio not found!" });
-
-    await db.portfolio.upsert({
+    const port = await db.portfolio.findFirst({
       where: { userId, commodityName },
-      update: {
-        totalQuantity: portfolio?.totalQuantity + quantity,
-        balance: portfolio.balance + trans.price,
-      },
-      create: {
-        userId,
-        commodityName,
-        totalQuantity: quantity,
-        balance: price,
-      },
     });
+
+    if (port === null) {
+      await db.portfolio.create({
+        data: {
+          userId,
+          commodityName,
+          totalQuantity: Number(quantity),
+          balance: price,
+        },
+      });
+    } else {
+      await db.portfolio.update({
+        where: { userId, commodityName },
+        data: {
+          totalQuantity: Number(port?.totalQuantity + quantity),
+          balance: port.balance + trans.price,
+        },
+      });
+    }
 
     return Response.json({
       success: `You successfully sent (#${price}) to buy ${quantity} ${unit}`,

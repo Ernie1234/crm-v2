@@ -12,13 +12,14 @@ export const portfolioCommodity = async () => {
     const portfolio = await db.portfolio.findMany({
       where: { userId: user?.id },
     });
+    console.log(portfolio);
 
     return portfolio;
   } catch (error) {
     console.log(error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Failed to fetch portfolio commodities" }),
-    };
+    // return {
+    //   statusCode: 500,
+    //   body: JSON.stringify({ error: "Failed to fetch portfolio commodities" }),
+    // };
   }
 };

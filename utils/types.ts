@@ -95,3 +95,13 @@ export type TTransactionData = {
   plan_object: {};
   subaccount: {};
 };
+
+export type TPortfolioCommodity = {
+  id: string;
+  userId: string;
+  commodityName: string;
+  balance: number;
+  totalQuantity: number;
+  createdAt: Date;
+  updatedAt: Date;
+};

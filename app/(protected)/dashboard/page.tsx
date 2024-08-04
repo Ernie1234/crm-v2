@@ -1,3 +1,4 @@
+import { portfolioCommodity } from "@/actions/portfolio";
 import Nav from "@/components/dashboardComponents/Nav";
 import PortfolioBalance from "@/components/dashboardComponents/dashboard/PortfolioBalance";
 import { QuickAction } from "@/components/dashboardComponents/dashboard/QuickAction";
@@ -7,6 +8,10 @@ import YourCommodity from "@/components/dashboardComponents/dashboard/YourCommod
 import { Suspense } from "react";
 
 export default async function page() {
+  const portfolioData = await portfolioCommodity();
+
+  if (!Array.isArray(portfolioData)) return <p>Error fetching portfolio.</p>;
+
   return (
     <div className="w-full">
       <Nav header="Dashboard" />
@@ -20,7 +25,7 @@ export default async function page() {
             <TopCommodities />
           </div>
           <div className="flex flex-col md:flex-row w-full gap-8">
-            <YourCommodity />
+            <YourCommodity portfolio={portfolioData} />
             <RecentTransaction />
           </div>
         </main>
