@@ -47,7 +47,10 @@ export default function YourCommodity({ portfolio }: Props) {
                     Commodity <ChevronsUpDown size={18} />
                   </TableHead>
                   <TableHead>Balance</TableHead>
-                  <TableHead>7d%</TableHead>
+                  <TableHead className="flex gap-2 justify-start items-center">
+                    7d %
+                    <ChevronsUpDown size={18} />
+                  </TableHead>
                   <TableHead>Chart</TableHead>
                 </TableRow>
               </TableHeader>

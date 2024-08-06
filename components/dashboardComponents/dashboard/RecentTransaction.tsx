@@ -24,7 +24,7 @@ export async function RecentTransaction({ className, ...props }: CardProps) {
   if (!transaction) return <p>No transaction found.</p>;
 
   return (
-    <Card className={cn("w-full md:w-[560px]", className)} {...props}>
+    <Card className={cn("w-full", className)} {...props}>
       <CardHeader>
         <CardTitle className="flex justify-between items-center gap-4">
           <p className="text-lg">Recent Transactions</p>
@@ -57,7 +57,10 @@ export async function RecentTransaction({ className, ...props }: CardProps) {
         <>
           <CardContent>
             {transaction.map((t) => (
-              <div className="flex justify-between items-center" key={t.id}>
+              <div
+                className="flex justify-between items-center pb-4"
+                key={t.id}
+              >
                 <div className="flex flex-col">
                   <h5 className="uppercase text-lg font-semibold">
                     {t?.commodityName}

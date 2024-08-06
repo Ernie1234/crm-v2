@@ -132,7 +132,6 @@ export default function BuyModal() {
         description: error,
         variant: "destructive",
       });
-      // console.log(error);
     }
   }
 

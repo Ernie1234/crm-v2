@@ -4,27 +4,8 @@ import { formatPrice } from "@/utils/fnLib";
 import { MdOutlineShowChart } from "react-icons/md";
 import { TbCurrencyNaira } from "react-icons/tb";
 
-import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js/auto";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import { TopComChart } from "./TopComChart";
+import { cn } from "@/lib/utils";
 
 interface Props {
   name: string;
@@ -37,30 +18,22 @@ interface Props {
     updatedAt: Date;
     commodityId: string;
   }[];
+  avgPrice: number;
 }
 
-export default function TopComCard({ name, price, unit, priceList }: Props) {
-  const chartData = {
-    type: "line",
-    labels: priceList.map((item) => item.createdAt.toLocaleDateString()),
-    datasets: [
-      {
-        label: "Price",
-        data: priceList.slice(0, 7).map((item) => item.price),
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const options = {
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
+export default function TopComCard({
+  name,
+  price,
+  unit,
+  priceList,
+  avgPrice,
+}: Props) {
+  const chartData = priceList.map((item) => {
+    return {
+      date: item.createdAt.toLocaleDateString(),
+      price: item.price,
+    };
+  });
 
   return (
     <div className="bg-white p-4 rounded-lg border border-gray-200">
@@ -70,9 +43,28 @@ export default function TopComCard({ name, price, unit, priceList }: Props) {
           <span className="text-muted-foreground">({unit})</span>
         </h4>
         <div className="flex space-x-1">
-          <MdOutlineShowChart size={24} className="fill-green-500" />
+          <MdOutlineShowChart
+            size={24}
+            className={cn(
+              avgPrice < 0
+                ? "text-red-400"
+                : avgPrice > 0
+                ? "text-green-500"
+                : "text-neutral-700"
+            )}
+          />
           {/* TODO: CALL THE AVERAGE */}
-          <p className={`text-green-500`}>5.04%</p>
+          <p
+            className={cn(
+              avgPrice < 0
+                ? "text-red-400"
+                : avgPrice > 0
+                ? "text-green-500"
+                : "text-neutral-700"
+            )}
+          >
+            {avgPrice}%
+          </p>
         </div>
       </div>
       <div className="flex items-end space-x-2">
@@ -82,7 +74,8 @@ export default function TopComCard({ name, price, unit, priceList }: Props) {
         </span>
         <span className="text-sm pb-1">per unit</span>
       </div>
-      <Line data={chartData} options={options} />
+      {/* <Line data={chartData} options={options} /> */}
+      <TopComChart chartData={chartData} />
     </div>
   );
 }

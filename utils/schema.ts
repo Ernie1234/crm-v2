@@ -45,15 +45,7 @@ export const profileFormSchema = z.object({
     message: "Last name must be at least 1 characters.",
   }),
   email: z.string().email("Invalid email address"),
-  phoneNumber: z
-    .string()
-    .min(10, "Phone number must be at least 10 characters long")
-    .max(15, "Phone number must be at most 15 characters long")
-    .regex(
-      /^[0-9+\s()-]+$/,
-      "Phone number must only contain digits, +, -, (), and spaces"
-    ),
-  imageurl: z.string(),
+  // imageUrl: z.string(),
 });
 
 //ADD COMMODITY FORM ZOD SCHEMA

@@ -19,7 +19,7 @@ export function QuickAction({ className, ...props }: CardProps) {
   const buyModal = useBuyModalStore();
 
   return (
-    <Card className={cn("w-full md:w-[560px]", className)} {...props}>
+    <Card className={cn("w-full", className)} {...props}>
       <CardHeader>
         <CardTitle className="flex justify-between items-center gap-4 text-lg">
           Quick actions

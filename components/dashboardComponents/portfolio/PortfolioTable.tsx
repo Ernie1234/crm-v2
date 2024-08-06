@@ -7,6 +7,6 @@ interface Props {
 }
 
 export default function PortfolioTable({ portfolio }: Props) {
-  console.log(portfolio);
+  // console.log(portfolio);
   return <div>PortfolioTable</div>;
 }

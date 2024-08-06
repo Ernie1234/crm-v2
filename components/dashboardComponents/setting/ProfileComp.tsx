@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { updateUserByEmail } from "@/actions/user";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,13 +14,16 @@ import { Input } from "@/components/ui/input";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { profileFormSchema } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Camera, CloudCog } from "lucide-react";
+import { CloudCog } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { useTransition } from "react";
+import * as z from "zod";
+import { toast } from "@/components/ui/use-toast";
 
 export default function ProfileComp() {
+  const [isPending, startTransition] = useTransition();
   const user = useCurrentUser();
   const firstName = user?.name.split(" ")[0] || "";
   const lastName = user?.name.split(" ")[1] || "";
@@ -30,15 +33,30 @@ export default function ProfileComp() {
   const form = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      firstName,
-      lastName,
+      firstName: firstName,
+      lastName: lastName,
       email,
     },
   });
 
   function onSubmit(values: z.infer<typeof profileFormSchema>) {
-    console.log(values);
+    startTransition(() => {
+      updateUserByEmail(values).then((data) => {
+        if (data?.error) {
+          toast({
+            description: data.error,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            description: data.success,
+            variant: "default",
+          });
+        }
+      });
+    });
   }
+
   return (
     <div>
       <Form {...form}>
@@ -55,9 +73,12 @@ export default function ProfileComp() {
                   <FormItem className="w-full">
                     <FormLabel>First Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="first name" {...field} />
+                      <Input
+                        disabled={isPending}
+                        placeholder="first name"
+                        {...field}
+                      />
                     </FormControl>
-
                     <FormMessage />
                   </FormItem>
                 )}
@@ -69,9 +90,12 @@ export default function ProfileComp() {
                   <FormItem className="w-full">
                     <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="last name" {...field} />
+                      <Input
+                        disabled={isPending}
+                        placeholder="last name"
+                        {...field}
+                      />
                     </FormControl>
-
                     <FormMessage />
                   </FormItem>
                 )}
@@ -86,7 +110,6 @@ export default function ProfileComp() {
                   <FormControl>
                     <Input placeholder="email" disabled {...field} />
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -153,8 +176,9 @@ export default function ProfileComp() {
               size="lg"
               className="px-12 bg-green-700 hover:bg-green-600 transition-all duration-500"
               type="submit"
+              disabled={isPending}
             >
-              Save Changes
+              {isPending ? "Saving Changes" : "Save Changes"}
             </Button>
           </div>
         </form>

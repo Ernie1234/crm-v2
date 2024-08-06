@@ -12,7 +12,6 @@ export const portfolioCommodity = async () => {
     const portfolio = await db.portfolio.findMany({
       where: { userId: user?.id },
     });
-    console.log(portfolio);
 
     return portfolio;
   } catch (error) {
@@ -20,6 +19,25 @@ export const portfolioCommodity = async () => {
     // return {
     //   statusCode: 500,
     //   body: JSON.stringify({ error: "Failed to fetch portfolio commodities" }),
+    // };
+  }
+};
+export const getCommodityByName = async (name: string) => {
+  try {
+    if (!name) return { error: "Commodity not available!" };
+    const portfolioCommodity = await db.commodity.findUnique({
+      where: { name },
+      include: { price: true },
+    });
+    if (!portfolioCommodity)
+      return { error: "Commodity not found in portfolio" };
+    const price = portfolioCommodity?.price;
+    return price;
+  } catch (error) {
+    console.log(error);
+    // return {
+    //   statusCode: 500,
+    //   body: JSON.stringify({ error: "Failed to fetch commodity price" }),
     // };
   }
 };

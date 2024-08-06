@@ -1,5 +1,6 @@
 import { getAllCommodities } from "@/actions/commodity";
 import TopComCard from "./TopComCard";
+import { calculatePercentageChange } from "@/utils/fnLib";
 
 export default async function TopCommodities() {
   const commodity = await getAllCommodities();
@@ -15,6 +16,8 @@ export default async function TopCommodities() {
         {filterdComm.map((item) => {
           const comPrice = item.price.at(-1)?.price;
           const comUnit = item.unit.replace("per ", "");
+          const lastPrice = item.price.slice(-2).map((item) => item.price);
+          const avgPrice = calculatePercentageChange(lastPrice);
           return (
             <TopComCard
               key={item.id}
@@ -22,6 +25,7 @@ export default async function TopCommodities() {
               price={comPrice}
               unit={comUnit}
               priceList={item.price}
+              avgPrice={avgPrice}
             />
           );
         })}
