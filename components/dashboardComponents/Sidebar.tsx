@@ -6,10 +6,17 @@ import { MdOutlineAdminPanelSettings } from "react-icons/md";
 
 import { dashboardLinks } from "@/utils/data";
 import { useCurrentRole } from "@/hooks/use-current-role";
+import { Button } from "../ui/button";
+
+import { useBuyModalStore } from "@/hooks/use-buy-store";
+import { useSellModalStore } from "@/hooks/use-sell-store";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const role = useCurrentRole();
+
+  const modalStore = useBuyModalStore();
+  const sellModalStore = useSellModalStore();
 
   return (
     <aside className="sticky top-0 max-h-dvh min-w-min bg-green-800 p-4 flex flex-col justify-between">
@@ -49,7 +56,20 @@ export default function Sidebar() {
           )}
         </div>
       </div>
-      <div className="text-white">buttons</div>
+      <div className="flex flex-col gap-3">
+        <Button
+          className="w-full bg-gray-50 hover:bg-gray-200/50 shadow-md text-green-700 hover:text-white rounded-full border border-gray-100 hover:border-gray-100/10 transition-all duration-300"
+          onClick={modalStore.onOpen}
+        >
+          Buy
+        </Button>
+        <Button
+          className="w-full bg-transparent hover:bg-white hover:text-green-700 rounded-full border border-gray-100 transition-all duration-300"
+          onClick={sellModalStore.onOpen}
+        >
+          Sell
+        </Button>
+      </div>
     </aside>
   );
 }

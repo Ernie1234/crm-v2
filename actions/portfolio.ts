@@ -41,3 +41,22 @@ export const getCommodityByName = async (name: string) => {
     // };
   }
 };
+// export const getPortfolioCommodityByUserEmail = async (email: string) => {
+//   try {
+//     if (!email) return { error: "Commodity not available!" };
+
+//     const user =
+//     const portfolioCommodity = await db.portfolio.findUnique({
+//       where: { email },
+//     });
+//     console.log(portfolioCommodity);
+
+//     return portfolioCommodity;
+//   } catch (error) {
+//     console.log(error);
+//     // return {
+//     //   statusCode: 500,
+//     //   body: JSON.stringify({ error: "Failed to fetch commodity price" }),
+//     // };
+//   }
+// };

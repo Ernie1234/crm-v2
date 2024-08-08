@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useBuyModalStore } from "@/hooks/use-buy-store";
+import { useSellModalStore } from "@/hooks/use-sell-store";
 
 interface IModal {
   isOpen?: boolean;
@@ -26,6 +28,8 @@ enum Tabs {
 const Modal = ({ isOpen, body, footer, tab }: IModal) => {
   const [showModal, setShowModal] = useState(isOpen);
   const [activeTab, setActiveTab] = useState(tab);
+  const modalStore = useBuyModalStore();
+  const sellModalStore = useSellModalStore();
 
   useEffect(() => {
     setShowModal(isOpen);
@@ -62,7 +66,11 @@ const Modal = ({ isOpen, body, footer, tab }: IModal) => {
                         ? "rounded-none bg-gray-200"
                         : "bg-gray-200 rounded-br-2xl"
                     )}
-                    onClick={() => setActiveTab(Tabs.BUY)}
+                    onClick={() => {
+                      setActiveTab(Tabs.BUY);
+                      sellModalStore.onClose();
+                      modalStore.onOpen();
+                    }}
                   >
                     Buy
                   </p>
@@ -75,7 +83,11 @@ const Modal = ({ isOpen, body, footer, tab }: IModal) => {
                         ? "rounded-br-2xl bg-gray-200"
                         : "bg-gray-200 rounded-bl-2xl"
                     )}
-                    onClick={() => setActiveTab(Tabs.SELL)}
+                    onClick={() => {
+                      setActiveTab(Tabs.SELL);
+                      modalStore.onClose();
+                      sellModalStore.onOpen();
+                    }}
                   >
                     Sell
                   </p>

@@ -84,3 +84,10 @@ export const buyModalSchema = z.object({
   expiryDate: z.string(),
   cvc: z.string(),
 });
+export const sellModalSchema = z.object({
+  commodityName: z.string(),
+  amount: z.string(),
+  bankAcct: z.string(),
+  bank: z.string(),
+  acctNumber: z.string(),
+});

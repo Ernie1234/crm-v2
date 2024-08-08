@@ -145,8 +145,8 @@ export default function ProfileComp() {
                   src={image}
                   alt="Profile Image"
                   className="rounded-full border-2 border-white w-2/3 h-full"
-                  width={150}
-                  height={150}
+                  width={500}
+                  height={500}
                   quality={100}
                 />
                 <div className="bg-red-400 h-8 w-8 absolute bottom-4 right-28 "></div>

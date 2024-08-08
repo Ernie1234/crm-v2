@@ -1,6 +1,6 @@
 "use client";
 
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -10,15 +10,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { TPortfolioCommodity } from "@/utils/types";
-import { format } from "date-fns";
-// const chartData = [
-//   { month: "January", price: 18.6 },
-//   { month: "February", price: 30.5 },
-//   { month: "March", price: 23.7 },
-//   { month: "April", price: 7.3 },
-//   { month: "May", price: 20.9 },
-//   { month: "June", price: 21.4 },
-// ];
+
 interface Props {
   portfolio: TPortfolioCommodity[];
 }
@@ -32,20 +24,20 @@ const chartConfig = {
 
 export default function Chart({ portfolio }: Props) {
   return (
-    <Card>
-      {/* <Card className="max-h-60 overflow-y-auto"> */}
-      <CardContent>
-        <ChartContainer config={chartConfig}>
-          <AreaChart
-            accessibilityLayer
-            data={portfolio}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
+    // <Card>
+    //   {/* <Card className="max-h-60 overflow-y-auto"> */}
+    //   <CardContent>
+    <ChartContainer config={chartConfig}>
+      <AreaChart
+        accessibilityLayer
+        data={portfolio}
+        margin={{
+          left: 12,
+          right: 12,
+        }}
+      >
+        <CartesianGrid vertical={false} />
+        {/* <XAxis
               dataKey="createdAt"
               tickLine={false}
               axisLine={false}
@@ -53,22 +45,37 @@ export default function Chart({ portfolio }: Props) {
               tickFormatter={(value) =>
                 format(new Date(value), "MMM d, yyyy h:mm a")
               }
+            /> */}
+        <YAxis />
+        {/* <defs>
+          <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+            <stop
+              offset="5%"
+              stopColor="var(--color-mobile)"
+              stopOpacity={0.8}
             />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
+            <stop
+              offset="95%"
+              stopColor="var(--color-mobile)"
+              stopOpacity={0.1}
             />
-            <Area
-              height={20}
-              dataKey="balance"
-              type="natural"
-              fill="var(--color-balance)"
-              fillOpacity={0.4}
-              stroke="var(--color-balance)"
-            />
-          </AreaChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+          </linearGradient>
+        </defs> */}
+        <ChartTooltip
+          cursor={false}
+          content={<ChartTooltipContent indicator="line" />}
+        />
+        <Area
+          height={20}
+          dataKey="balance"
+          type="natural"
+          fill="var(--color-balance)"
+          fillOpacity={0.4}
+          stroke="var(--color-balance)"
+        />
+      </AreaChart>
+    </ChartContainer>
+    //   </CardContent>
+    // </Card>
   );
 }

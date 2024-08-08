@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { TrendingUp } from "lucide-react";
 import { Pie, PieChart } from "recharts";
 
 import {
@@ -18,16 +17,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { TPortfolioCommodity } from "@/utils/types";
-import { Item } from "@radix-ui/react-select";
 import { formatPrice } from "@/utils/fnLib";
 import { TbCurrencyNaira } from "react-icons/tb";
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 287, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 190, fill: "var(--color-other)" },
-];
 
 const chartConfig = {
   visitors: {
