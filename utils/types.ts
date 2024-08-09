@@ -105,3 +105,12 @@ export type TPortfolioCommodity = {
   createdAt: Date;
   updatedAt: Date;
 };
+export type IBuy = {
+  name: string;
+  price: {
+    price: number;
+  }[];
+  unit: string;
+  minQuantity: number;
+  maxQuantity: number;
+};

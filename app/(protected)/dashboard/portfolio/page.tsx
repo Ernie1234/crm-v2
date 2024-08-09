@@ -17,7 +17,9 @@ export default async function page() {
       <main className="bg-gray-100 w-full min-h-dvh overflow-scroll no-scrollbar flex flex-col lg:flex-row p-4 gap-5 lg:gap-8">
         <div className="flex flex-col lg:max-w-[70%] w-full gap-8">
           {/* <PortfolioTable portfolio={portfolioData} /> */}
-          <PortfolioBalance />
+          <div className="w-full h-fit max-h-min">
+            <PortfolioBalance adjust />
+          </div>
           <YourCommodity portfolio={portfolioData} />
         </div>
         <div className="flex flex-col lg:max-w-[30%] w-full gap-8">

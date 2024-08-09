@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useBuyModalStore } from "@/hooks/use-buy-store";
 import { useSellModalStore } from "@/hooks/use-sell-store";
+import { useSwapModalStore } from "@/hooks/use-swap-store";
 
 interface IModal {
   isOpen?: boolean;
@@ -30,6 +31,7 @@ const Modal = ({ isOpen, body, footer, tab }: IModal) => {
   const [activeTab, setActiveTab] = useState(tab);
   const modalStore = useBuyModalStore();
   const sellModalStore = useSellModalStore();
+  const swapModalStore = useSwapModalStore();
 
   useEffect(() => {
     setShowModal(isOpen);
@@ -69,6 +71,7 @@ const Modal = ({ isOpen, body, footer, tab }: IModal) => {
                     onClick={() => {
                       setActiveTab(Tabs.BUY);
                       sellModalStore.onClose();
+                      swapModalStore.onClose();
                       modalStore.onOpen();
                     }}
                   >
@@ -86,6 +89,7 @@ const Modal = ({ isOpen, body, footer, tab }: IModal) => {
                     onClick={() => {
                       setActiveTab(Tabs.SELL);
                       modalStore.onClose();
+                      swapModalStore.onClose();
                       sellModalStore.onOpen();
                     }}
                   >
@@ -100,7 +104,12 @@ const Modal = ({ isOpen, body, footer, tab }: IModal) => {
                         ? "bg-gray-200 rounded-bl-none"
                         : "bg-gray-200 rounded-bl-2xl"
                     )}
-                    onClick={() => setActiveTab(Tabs.SWAP)}
+                    onClick={() => {
+                      setActiveTab(Tabs.SWAP);
+                      modalStore.onClose();
+                      sellModalStore.onClose();
+                      swapModalStore.onOpen();
+                    }}
                   >
                     Swap
                   </p>

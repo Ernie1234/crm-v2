@@ -5,7 +5,7 @@ import { TbCurrencyNaira } from "react-icons/tb";
 import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ArrowLeft, MoveUp } from "lucide-react";
+import { ArrowLeft, ArrowUpDown } from "lucide-react";
 import * as z from "zod";
 
 import {
@@ -24,17 +24,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { useBuyModalStore } from "@/hooks/use-buy-store";
-import { useSellModalStore } from "@/hooks/use-sell-store";
 import Modal from "./Modal";
-import { sellModalSchema } from "@/utils/schema";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import { swapModalSchema } from "@/utils/schema";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TPortfolioCommodity } from "@/utils/types";
+import { IBuy, TPortfolioCommodity } from "@/utils/types";
 import { formatPrice } from "@/utils/fnLib";
 import { cn } from "@/lib/utils";
+import { useSwapModalStore } from "@/hooks/use-swap-store";
 
 enum Tabs {
   BUY,
@@ -43,34 +41,26 @@ enum Tabs {
 }
 enum STEPS {
   SELECT_INITIAL = 0,
-  SELECT_PAYMENT = 1,
   SELECT_DETAILS = 2,
 }
 
 interface Props {
   portfolioCommodity: TPortfolioCommodity[];
+  commodity: IBuy[] | undefined;
 }
 
-export default function SellModal({ portfolioCommodity }: Props) {
+export default function SwapModal({ portfolioCommodity, commodity }: Props) {
   const [open, setOpen] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [data, setData] = useState("");
   const [selectedStep, setSelectedStep] = useState(STEPS.SELECT_INITIAL);
-  const sellModalStore = useSellModalStore();
+  const swapModalStore = useSwapModalStore();
 
-  const form = useForm<z.infer<typeof sellModalSchema>>({
-    resolver: zodResolver(sellModalSchema),
+  const form = useForm<z.infer<typeof swapModalSchema>>({
+    resolver: zodResolver(swapModalSchema),
   });
 
-  const formState = form.watch([
-    "amount",
-    "commodityName",
-    "bank",
-    "acctNumber",
-  ]);
-
-  const charge = 311;
-  const AmountReceive = formState[0] && Number(formState[0]) - charge;
+  const formState = form.watch(["commodityWallet", "transferTo", "amount"]);
 
   const onOpenChange = () => {
     setOpen((prev) => !prev);
@@ -80,13 +70,11 @@ export default function SellModal({ portfolioCommodity }: Props) {
     if (selectedStep === STEPS.SELECT_INITIAL) {
       return "Continue";
     }
-    if (selectedStep === STEPS.SELECT_PAYMENT) {
-      return "Next";
-    }
-    return "Sell Now";
+
+    return "Swap Now";
   }, [selectedStep]);
 
-  async function onSubmit(values: z.infer<typeof sellModalSchema>) {
+  async function onSubmit(values: z.infer<typeof swapModalSchema>) {
     try {
       console.log(values);
     } catch (error: any) {
@@ -106,6 +94,9 @@ export default function SellModal({ portfolioCommodity }: Props) {
       return setSelectedStep((prev) => prev + 1);
   };
 
+  const charge = 311;
+  const AmountReceive = formState[2] && Number(formState[2]) - charge;
+
   const bodyContent = (
     <div className="flex flex-col gap-4">
       <Form {...form}>
@@ -114,7 +105,7 @@ export default function SellModal({ portfolioCommodity }: Props) {
             <>
               <FormField
                 control={form.control}
-                name="commodityName"
+                name="commodityWallet"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-base text-gray-700">
@@ -159,6 +150,50 @@ export default function SellModal({ portfolioCommodity }: Props) {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="transferTo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base text-gray-700">
+                      Transfer to
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="py-3 h-12">
+                          <SelectValue placeholder="Select a commodity" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="z-[100]">
+                        {commodity?.map((item) => {
+                          const comPrice = item.price.at(-1)?.price;
+                          return (
+                            <SelectItem key={item.name} value={item.name}>
+                              <div className="flex items-center gap-4 uppercase">
+                                <span className="text-xl font-medium">
+                                  {item.name}
+                                </span>
+                                <span className="font-semibold text-muted-foreground">
+                                  {item.unit.replace("per ", "")}
+                                </span>
+                                <span className="font-semibold text-gray-800 py-0.5 px-2.5 bg-green-100 rounded-full ml-8 flex justify-center items-center text-lg">
+                                  <TbCurrencyNaira size={20} />
+                                  {comPrice && formatPrice(comPrice)}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <div className="flex flex-col">
                 <FormField
                   control={form.control}
@@ -166,7 +201,7 @@ export default function SellModal({ portfolioCommodity }: Props) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-base text-gray-700">
-                        Amount to withdraw
+                        Amount to swap
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -182,60 +217,15 @@ export default function SellModal({ portfolioCommodity }: Props) {
                 />
                 <div
                   className={cn(
-                    "w-full bg-green-200 rounded-b-md px-2 py-1 flex justify-between items-center",
-                    formState[0]
+                    "w-full bg-green-200 rounded-b-md px-2 py-1 flex justify-between items-center"
                   )}
                 >
                   <span className="text-sm leading-none">
                     Amount you{"'"}ll receive
                   </span>
-                  <p className="">{formState[0]} NGN</p>
+                  {/* <p className="">{formState[0]} NGN</p> */}
                 </div>
               </div>
-
-              <FormField
-                control={form.control}
-                name="bankAcct"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base text-gray-700">
-                      Payment Method
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="py-3 h-12">
-                          <SelectValue
-                            className="text-lg"
-                            placeholder="Select payment method"
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="z-[100]">
-                        <SelectItem
-                          className="text-lg uppercase"
-                          value="savings"
-                        >
-                          Savings
-                        </SelectItem>
-                        <SelectItem
-                          className="text-lg uppercase"
-                          value="current"
-                        >
-                          Current
-                        </SelectItem>
-                        <SelectItem className="text-lg uppercase" value="fixed">
-                          Fixed
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
               <div className="flex flex-col items-center gap-2 w-full">
                 <Button
@@ -249,151 +239,63 @@ export default function SellModal({ portfolioCommodity }: Props) {
                 <Button
                   className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-background hover:bg-white border border-transparent hover:border-gray-800 text-gray-600 hover:text-gray-800 rounded-full"
                   disabled={isLoading}
-                  onClick={sellModalStore.onClose}
+                  onClick={swapModalStore.onClose}
                 >
                   Cancel
                 </Button>
               </div>
             </>
-          ) : selectedStep === STEPS.SELECT_PAYMENT ? (
-            <div className="h-full w-full flex flex-col">
-              <div className="flex justify-between items-center gap-3">
-                <ArrowLeft onClick={onBack} />
-                <p className="text-2xl text-center font-medium">
-                  Add Bank Account
-                </p>
-                <span></span>
-              </div>
-              <div className="flex flex-col gap-4 mt-5">
-                <FormField
-                  control={form.control}
-                  name="bank"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base text-gray-700">
-                        Select Bank
-                      </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="py-3 h-12">
-                            <SelectValue
-                              className="text-lg"
-                              placeholder="Select payment method"
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="z-[100]">
-                          <SelectItem
-                            className="text-lg uppercase"
-                            value="access"
-                          >
-                            Access Bank
-                          </SelectItem>
-                          <SelectItem
-                            className="text-lg uppercase"
-                            value="union"
-                          >
-                            Union Bank
-                          </SelectItem>
-                          <SelectItem
-                            className="text-lg uppercase"
-                            value="fixed"
-                          >
-                            Fixed
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="acctNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base text-gray-700">
-                        Bank Account number
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          className="p-3 placeholder:text-lg"
-                          placeholder="Enter bank account number"
-                          {...field}
-                        />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex justify-center items-center gap-2 w-full mt-8">
-                <Button
-                  className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-green-700 hover:bg-green-600 rounded-full border-green-700 text-white"
-                  disabled={isLoading}
-                  onClick={onNext}
-                >
-                  Add Bank Account
-                </Button>
-              </div>
-            </div>
           ) : (
             <div className="h-full w-full flex flex-col">
               <div className="flex justify-between items-center gap-3">
                 <ArrowLeft onClick={onBack} />
                 <p className="text-2xl text-center font-medium">
-                  review Details
+                  Review Details
                 </p>
                 <span></span>
               </div>
               <div className="w-full flex flex-col justify-center items-center my-5">
                 <div className="p-3 rounded-full bg-[#EFFECE]">
-                  <MoveUp size={28} />
+                  <ArrowUpDown size={28} />
                 </div>
                 <p className="text-lg font-medium">Sell Commodity</p>
               </div>
               <div className="flex flex-col my-5 border rounded-xl">
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Wallet</p>
+                  <p className="text-muted-foreground">Transfer Wallet</p>
                   <p className="text-lg font-medium text-gray-700">
-                    {formState[1]}
+                    {formState[0]} (TON)
                   </p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Amount Bought</p>
+                  <p className="text-muted-foreground">Receiving Wallet</p>
                   <p className="text-lg font-medium text-gray-700">
-                    {Number(formState[0])}
+                    {formState[1]} (TON)
+                  </p>
+                </div>
+                <div className="flex justify-between items-center p-3 border-b border-gray-200 last:border-b-0">
+                  <p className="text-muted-foreground">Amount Swap</p>
+                  <p className="text-lg font-medium text-gray-700">
+                    {formState[2] && formatPrice(Number(formState[2]))}
                   </p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">You receive</p>
-                  <p className="text-lg font-medium text-gray-700">
-                    {AmountReceive}
+                  <p className="text-muted-foreground">Wallet Receives</p>
+                  <p className="text-lg font-medium capitalize text-gray-700">
+                    {AmountReceive && formatPrice(AmountReceive)}
                   </p>
                 </div>
-                <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Fee/Charges</p>
+                <div className="flex justify-between items-center p-3 border-b border-gray-200 last:border-b-0">
+                  <p className="text-muted-foreground">Fee</p>
                   <p className="text-lg font-medium text-gray-700">
                     N {charge}
                   </p>
                 </div>
-
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
                   <p className="text-muted-foreground">Rate</p>
                   <p className="text-lg font-medium text-gray-700">
                     {/* N{price && formatPrice(price)}/
                     {unit && unit.replace("per ", "")} */}
-                  </p>
-                </div>
-                <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Bank account</p>
-                  <p className="text-lg font-medium capitalize text-gray-700">
-                    {formState[2]}, {formState[3]}
                   </p>
                 </div>
               </div>
@@ -416,8 +318,8 @@ export default function SellModal({ portfolioCommodity }: Props) {
     <>
       <Modal
         disabled={isLoading}
-        isOpen={sellModalStore.isOpen}
-        onClose={sellModalStore.onClose}
+        isOpen={swapModalStore.isOpen}
+        onClose={swapModalStore.onClose}
         actionLabel={actionLabel}
         onSubmit={() => onNext()}
         secondaryActionLabel={
@@ -425,7 +327,7 @@ export default function SellModal({ portfolioCommodity }: Props) {
         }
         secondaryAction={
           selectedStep === STEPS.SELECT_INITIAL
-            ? sellModalStore.onClose
+            ? swapModalStore.onClose
             : onBack
         }
         body={bodyContent}

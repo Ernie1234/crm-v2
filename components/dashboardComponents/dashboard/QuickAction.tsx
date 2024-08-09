@@ -12,11 +12,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useBuyModalStore } from "@/hooks/use-buy-store";
+import { useSellModalStore } from "@/hooks/use-sell-store";
+import { useSwapModalStore } from "@/hooks/use-swap-store";
 
 type CardProps = React.ComponentProps<typeof Card>;
 
 export function QuickAction({ className, ...props }: CardProps) {
   const buyModal = useBuyModalStore();
+  const sellModal = useSellModalStore();
+  const swapModal = useSwapModalStore();
 
   return (
     <Card className={cn("w-full", className)} {...props}>
@@ -37,13 +41,17 @@ export function QuickAction({ className, ...props }: CardProps) {
           <Button
             size="lg"
             className="bg-transparent border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-full transition-all duration-500"
+            onClick={sellModal.onOpen}
           >
             Sell
           </Button>
         </div>
       </CardContent>
-      <CardFooter className="flex gap-4">
-        <div className="flex flex-col justify-center items-center">
+      <CardFooter className="flex justify-evenly items-center gap-4">
+        <div
+          className="flex flex-col justify-center items-center"
+          onClick={swapModal.onOpen}
+        >
           <div className="bg-lime-100 hover:bg-lime-300 hover:shadow-md p-4 rounded-full">
             <ArrowUpDown />
           </div>

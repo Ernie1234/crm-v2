@@ -41,16 +41,7 @@ import { buyModalSchema } from "@/utils/schema";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import Link from "next/link";
 import { toast } from "@/components/ui/use-toast";
-
-interface IBuy {
-  name: string;
-  price: {
-    price: number;
-  }[];
-  unit: string;
-  minQuantity: number;
-  maxQuantity: number;
-}
+import { IBuy } from "@/utils/types";
 
 enum Tabs {
   BUY,
@@ -63,24 +54,19 @@ enum STEPS {
   SELECT_DETAILS = 2,
 }
 
-export default function BuyModal() {
+interface Props {
+  commodity: IBuy[] | undefined;
+}
+
+export default function BuyModal({ commodity }: Props) {
   const [isLoading, setLoading] = useState(false);
   const [selectedStep, setSelectedStep] = useState(STEPS.SELECT_INITIAL);
-  const [commodity, setCommodity] = useState<IBuy[] | undefined>([]);
   const modalStore = useBuyModalStore();
   const [open, setOpen] = useState(false);
   const [data, setData] = useState("");
 
   const user = useCurrentUser();
   const email = user?.email;
-
-  const fetchFn = async () => {
-    const response = await getCommodityName();
-    setCommodity(response);
-  };
-  useEffect(() => {
-    fetchFn();
-  }, []);
 
   const form = useForm<z.infer<typeof buyModalSchema>>({
     resolver: zodResolver(buyModalSchema),

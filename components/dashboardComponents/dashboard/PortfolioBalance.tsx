@@ -1,8 +1,13 @@
 import { TbCurrencyNaira } from "react-icons/tb";
 import Chart from "./Chart";
 import { portfolioCommodity } from "@/actions/portfolio";
+import { formatPrice } from "@/utils/fnLib";
 
-export default async function PortfolioBalance() {
+interface Props {
+  adjust?: boolean;
+}
+
+export default async function PortfolioBalance({ adjust }: Props) {
   const portfolio = await portfolioCommodity();
 
   if (!Array.isArray(portfolio)) return <p>Error fetching portfolio.</p>;
@@ -20,10 +25,10 @@ export default async function PortfolioBalance() {
       </div>
       <h4 className="font-bold flex items-center">
         <TbCurrencyNaira size={24} />
-        <span className="text-xl">{balance}</span>
+        <span className="text-xl">{balance && formatPrice(balance)}</span>
       </h4>
       {/* <PortfolioChart data={comPrice} /> */}
-      <Chart portfolio={portfolio} />
+      <Chart portfolio={portfolio} adjust={adjust} />
     </div>
   );
 }
