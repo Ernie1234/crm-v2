@@ -78,12 +78,14 @@ export async function POST(req: NextRequest) {
     });
 
     if (port === null) {
+      const color = `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`;
       await db.portfolio.create({
         data: {
           userId,
           commodityName,
           totalQuantity: Number(quantity),
           balance: price,
+          color,
         },
       });
     } else {

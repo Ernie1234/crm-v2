@@ -22,7 +22,7 @@ export const portfolioCommodity = async () => {
     // };
   }
 };
-export const getCommodityByName = async (name: string) => {
+export const getCommodityPriceByName = async (name: string) => {
   try {
     if (!name) return { error: "Commodity not available!" };
     const portfolioCommodity = await db.commodity.findUnique({
@@ -35,28 +35,28 @@ export const getCommodityByName = async (name: string) => {
     return price;
   } catch (error) {
     console.log(error);
-    // return {
-    //   statusCode: 500,
-    //   body: JSON.stringify({ error: "Failed to fetch commodity price" }),
-    // };
+    return Response.json({
+      error: `Something went wrong!`,
+    });
   }
 };
-// export const getPortfolioCommodityByUserEmail = async (email: string) => {
-//   try {
-//     if (!email) return { error: "Commodity not available!" };
 
-//     const user =
-//     const portfolioCommodity = await db.portfolio.findUnique({
-//       where: { email },
-//     });
-//     console.log(portfolioCommodity);
+export const getCommodityByName = async (name: string) => {
+  try {
+    if (!name) return { error: "Commodity not available!" };
+    const portfolioCommodity = await db.commodity.findUnique({
+      where: { name },
+      // include: { price: true },
+    });
+    if (!portfolioCommodity)
+      return { error: "Commodity not found in portfolio" };
+    console.log(portfolioCommodity);
 
-//     return portfolioCommodity;
-//   } catch (error) {
-//     console.log(error);
-//     // return {
-//     //   statusCode: 500,
-//     //   body: JSON.stringify({ error: "Failed to fetch commodity price" }),
-//     // };
-//   }
-// };
+    return portfolioCommodity;
+  } catch (error) {
+    console.log(error);
+    return Response.json({
+      error: `Something went wrong!`,
+    });
+  }
+};

@@ -258,7 +258,7 @@ export default function SwapModal({ portfolioCommodity, commodity }: Props) {
                 <div className="p-3 rounded-full bg-[#EFFECE]">
                   <ArrowUpDown size={28} />
                 </div>
-                <p className="text-lg font-medium">Sell Commodity</p>
+                <p className="text-lg font-medium">Swap Commodity</p>
               </div>
               <div className="flex flex-col my-5 border rounded-xl">
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">

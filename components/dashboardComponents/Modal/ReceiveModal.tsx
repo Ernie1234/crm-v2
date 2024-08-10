@@ -1,43 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
+
 import { useSendModalStore } from "@/hooks/use-send-store";
 import { useReceiveModalStore } from "@/hooks/use-receive-store";
-
-interface IModal {
-  isOpen?: boolean;
-  onClose: () => void;
-  onSubmit?: () => void;
-  title?: string;
-  body?: React.ReactElement;
-  footer?: React.ReactElement;
-  actionLabel: string;
-  disabled?: boolean;
-  secondaryAction?: () => void;
-  secondaryActionLabel?: string;
-  tab?: Tabs;
-}
 
 enum Tabs {
   SEND,
   RECEIVE,
 }
 
-const Modal = ({ isOpen, body, footer, tab }: IModal) => {
-  const [showModal, setShowModal] = useState(isOpen);
-  const [activeTab, setActiveTab] = useState(tab);
-  const sendModalStore = useSendModalStore();
+interface Props {
+  address:
+    | string
+    | {
+        error: string;
+      };
+}
+
+export default function ReceiveModal({ address }: Props) {
   const receiveModalStore = useReceiveModalStore();
+  const sendModalStore = useSendModalStore();
 
-  useEffect(() => {
-    setShowModal(isOpen);
-  }, [isOpen]);
+  const [activeTab, setActiveTab] = useState(Tabs.RECEIVE);
 
-  if (!isOpen) return null;
+  const showModal = receiveModalStore.isOpen;
+
+  const bodyContent = <div className="flex flex-col gap-4">{}</div>;
 
   return (
-    <div className={cn(isOpen ? "flex" : "hidden")}>
+    <div className={cn(showModal ? "flex" : "hidden")}>
       <div className="justify-center flex items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-[70] outline-none focus:outline-none bg-neutral-800/70 max-h-screen">
         <div className="relative w-full md:w-4/6 lg:w-3/6 xl:w-2/5 my-6 mx-auto h-full md:h-auto lg:h-auto">
           {/*content*/}
@@ -92,14 +85,12 @@ const Modal = ({ isOpen, body, footer, tab }: IModal) => {
                   </p>
                 </div>
               </div>
-              <div className="relative p-4 flex-auto">{body}</div>
-              {footer}
+              <div className="relative p-4 flex-auto">{bodyContent}</div>
+              {/* {footer} */}
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default Modal;
+}

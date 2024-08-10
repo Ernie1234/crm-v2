@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import Empty from "./Empty";
-import { getTransaction } from "@/actions/transaction";
+import { getAllTransactions } from "@/actions/transaction";
 import { TbCurrencyNaira } from "react-icons/tb";
 import { formatPrice } from "@/utils/fnLib";
 
@@ -17,11 +17,12 @@ type CardProps = React.ComponentProps<typeof Card>;
 
 export async function RecentTransaction({ className, ...props }: CardProps) {
   // Fetch data from API
-  const transaction = await getTransaction();
+  const transaction = await getAllTransactions();
 
   if (!Array.isArray(transaction)) return <p>Error fetching transaction.</p>;
 
-  if (!transaction) return <p>No transaction found.</p>;
+  if (!transaction || transaction.length === 0)
+    return <p>No transaction found.</p>;
 
   return (
     <Card className={cn("w-full", className)} {...props}>

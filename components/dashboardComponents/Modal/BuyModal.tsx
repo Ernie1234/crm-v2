@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MoveDown } from "lucide-react";
 import { TbCurrencyNaira } from "react-icons/tb";
 import * as z from "zod";
 
@@ -35,7 +35,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { getCommodityName } from "@/actions/commodity";
 import { formatPrice, maskNumber } from "@/utils/fnLib";
 import { buyModalSchema } from "@/utils/schema";
 import { useCurrentUser } from "@/hooks/use-current-user";
@@ -373,6 +372,17 @@ export default function BuyModal({ commodity }: Props) {
                 </p>
                 <span></span>
               </div>
+              <div className="w-full flex flex-col justify-center items-center my-5">
+                <div className="p-3 rounded-full bg-[#EFFECE]">
+                  <div className="w-full flex flex-col justify-center items-center my-5">
+                    <div className="p-3 rounded-full bg-[#EFFECE]">
+                      <MoveDown size={28} />
+                    </div>
+                    <p className="text-lg font-medium">Sell Commodity</p>
+                  </div>
+                </div>
+                <p className="text-lg font-medium">Sell Commodity</p>
+              </div>
               <div className="flex flex-col my-5 border rounded-xl">
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
                   <p className="text-muted-foreground">Wallet</p>
@@ -387,7 +397,7 @@ export default function BuyModal({ commodity }: Props) {
                   </p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">You recieve</p>
+                  <p className="text-muted-foreground">You receive</p>
                   <p className="text-lg font-medium text-gray-700">
                     {/* N {price && formatPrice(Number(formState[1]) * price ?? 1)} */}
                     {formState[1]} {unit && unit.replace("per ", "")}

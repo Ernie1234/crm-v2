@@ -9,6 +9,7 @@ interface Props {
 
 export default async function PortfolioBalance({ adjust }: Props) {
   const portfolio = await portfolioCommodity();
+  // console.log(portfolio);
 
   if (!Array.isArray(portfolio)) return <p>Error fetching portfolio.</p>;
   if (portfolio.length === 0) return <p>No portfolio found.</p>;

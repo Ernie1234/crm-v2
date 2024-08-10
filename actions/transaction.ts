@@ -1,3 +1,4 @@
+import serverCurrentUser from "@/app/_components/serverCurrentUser";
 import { auth } from "@/auth";
 import { getUserByEmail } from "@/utils/data";
 import { db } from "@/utils/db";
@@ -41,5 +42,48 @@ export const getTransaction = async () => {
     return finalResult;
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const getAllTransactions = async () => {
+  try {
+    const session = await auth();
+    if (session === null || !session.user)
+      return { error: "Authentication failed!" };
+
+    const user = await serverCurrentUser();
+    if (!user) return { error: "Authentication failed!" };
+
+    const userId = user && (user.id as string);
+
+    const trans = await db.transaction.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return trans;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getWalletAddress = async () => {
+  try {
+    const session = await auth();
+    if (session === null || !session.user)
+      return { error: "Authentication failed!" };
+
+    const user = await serverCurrentUser();
+    if (!user) return { error: "Authentication failed!" };
+    const userId = user && (user.id as string);
+
+    const wallet = `UID${userId?.replace(/-/g, "").slice(0, 40)}`;
+
+    return wallet;
+  } catch (error) {
+    console.log(error);
+    return {
+      error: `Something went wrong!`,
+    };
   }
 };

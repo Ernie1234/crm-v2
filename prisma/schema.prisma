@@ -3,7 +3,6 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -41,6 +40,7 @@ model User {
   notification    Notification[]
   transaction     Transaction[]
   portfolio       Portfolio[]
+  sell            Sell[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -112,13 +112,25 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model Portfolio {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @db.ObjectId
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commodityName String   @unique
+  color         String
+  balance       Int      @default(0)
+  totalQuantity Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 model Transaction {
   id            String          @id @default(auto()) @map("_id") @db.ObjectId
   commodityName String
   type          TransactionType
-  quantity      Int
+  quantity      Int?
   status        String?
-  reference     String
+  reference     String?
   unit          String
   price         Int
   createdAt     DateTime        @default(now())
@@ -127,13 +139,16 @@ model Transaction {
   user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Portfolio {
+model Sell {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String   @unique @db.ObjectId
-  user          User     @relation(fields: [userId], references: [id])
-  commodityName String   @unique
-  balance       Int      @default(0)
-  totalQuantity Int      @default(0)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // portfolioId   String   @db.ObjectId
+  userId        String   @db.ObjectId
+  commodityName String
+  bank          String
+  accountNumber Int
+  amount        Int
+  status        String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }

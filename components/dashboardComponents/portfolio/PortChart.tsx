@@ -49,14 +49,13 @@ const chartConfig = {
 interface Props {
   portfolio: TPortfolioCommodity[];
 }
-// fill: `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`,
 
 export function PortChart({ portfolio }: Props) {
   const data = portfolio.map((item) => {
     const list = {
       browser: item.commodityName,
       visitors: item.balance,
-      fill: `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`,
+      fill: item.color,
     };
     return list;
   });

@@ -14,6 +14,7 @@ import {
 import { useBuyModalStore } from "@/hooks/use-buy-store";
 import { useSellModalStore } from "@/hooks/use-sell-store";
 import { useSwapModalStore } from "@/hooks/use-swap-store";
+import { useReceiveModalStore } from "@/hooks/use-receive-store";
 
 type CardProps = React.ComponentProps<typeof Card>;
 
@@ -21,6 +22,7 @@ export function QuickAction({ className, ...props }: CardProps) {
   const buyModal = useBuyModalStore();
   const sellModal = useSellModalStore();
   const swapModal = useSwapModalStore();
+  const receiveModal = useReceiveModalStore();
 
   return (
     <Card className={cn("w-full", className)} {...props}>
@@ -63,11 +65,14 @@ export function QuickAction({ className, ...props }: CardProps) {
           </div>
           <p className="text-lg capitalize">send</p>
         </div>
-        <div className="flex flex-col justify-center items-center">
+        <div
+          className="flex flex-col justify-center items-center"
+          onClick={receiveModal.onOpen}
+        >
           <div className="bg-orange-200 hover:bg-lime-300 hover:shadow-md p-4 rounded-full">
             <MoveDownLeft />
           </div>
-          <p className="text-lg capitalize">Recieve</p>
+          <p className="text-lg capitalize">Receive</p>
         </div>
       </CardFooter>
     </Card>

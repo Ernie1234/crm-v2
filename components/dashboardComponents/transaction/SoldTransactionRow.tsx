@@ -14,17 +14,15 @@ interface Props {
   id: string;
   name: string;
   date: Date;
-  price: number;
-  quantity: number | null;
+  amount: number;
   status: string | null;
 }
 
-export default function TransactionRow({
+export default function SoldTransactionRow({
   id,
   name,
   date,
-  price,
-  quantity,
+  amount,
   status,
 }: Props) {
   const router = useRouter();
@@ -49,10 +47,10 @@ export default function TransactionRow({
       <TableCell>
         <div className="flex h-full w-full justify-start items-center gap-1 font-medium">
           <TbCurrencyNaira size={18} />
-          <span>{price && formatPrice(price)}</span>
+          <span>{amount && formatPrice(amount)}</span>
         </div>
       </TableCell>
-      <TableCell>{quantity && quantity}</TableCell>
+      <TableCell>{amount && formatPrice(amount - 311)}</TableCell>
       <TableCell>
         <div
           className={cn(

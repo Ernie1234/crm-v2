@@ -1,4 +1,4 @@
-import { Transaction } from "@prisma/client";
+import { Transaction, TransactionType } from "@prisma/client";
 
 export type TCommodity = {
   id: string;
@@ -38,7 +38,7 @@ export type TUser = {
 export type TTransactionData = {
   id: number;
   commodityName: string;
-  type: Transaction;
+  type: TransactionType;
   quantity: number;
   status: "abandoned" | "success" | "failed";
   reference: string;
@@ -96,10 +96,25 @@ export type TTransactionData = {
   subaccount: {};
 };
 
+export type TAllTrans = {
+  id: string;
+  commodityName: string;
+  type: TransactionType;
+  quantity: number | null;
+  status: string | null;
+  reference: string | null;
+  unit: string;
+  price: number;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+};
+
 export type TPortfolioCommodity = {
   id: string;
   userId: string;
   commodityName: string;
+  color: string;
   balance: number;
   totalQuantity: number;
   createdAt: Date;

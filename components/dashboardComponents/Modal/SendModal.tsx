@@ -5,7 +5,7 @@ import { TbCurrencyNaira } from "react-icons/tb";
 import { useMemo, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ArrowLeft, MoveUp } from "lucide-react";
+import { ArrowLeft, ArrowUpDown } from "lucide-react";
 import * as z from "zod";
 
 import {
@@ -23,56 +23,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { useBuyModalStore } from "@/hooks/use-buy-store";
-import { useSellModalStore } from "@/hooks/use-sell-store";
-import Modal from "./Modal";
-import { sellModalSchema } from "@/utils/schema";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { sendModalSchema } from "@/utils/schema";
 import { TPortfolioCommodity } from "@/utils/types";
 import { formatPrice } from "@/utils/fnLib";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { toast } from "@/components/ui/use-toast";
-import { sellCommodity } from "@/actions/admin-transaction";
+import { Button } from "@/components/ui/button";
+import { useSendModalStore } from "@/hooks/use-send-store";
+import Modal from "./Modal";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 enum Tabs {
-  BUY,
-  SELL,
-  SWAP,
+  SEND,
+  RECEIVE,
 }
 enum STEPS {
   SELECT_INITIAL = 0,
-  SELECT_PAYMENT = 1,
-  SELECT_DETAILS = 2,
+  SELECT_DETAILS = 1,
 }
 
 interface Props {
   portfolioCommodity: TPortfolioCommodity[];
 }
 
-export default function SellModal({ portfolioCommodity }: Props) {
-  const [open, setOpen] = useState(false);
-  const [data, setData] = useState<string | undefined>("");
-  const [selectedStep, setSelectedStep] = useState(STEPS.SELECT_INITIAL);
-  const sellModalStore = useSellModalStore();
+export default function SendModal({ portfolioCommodity }: Props) {
   const [isPending, startTransition] = useTransition();
+  const sendModalStore = useSendModalStore();
+  const [open, setOpen] = useState(false);
+  const [data, setData] = useState("");
+  const [selectedStep, setSelectedStep] = useState(STEPS.SELECT_INITIAL);
 
-  const form = useForm<z.infer<typeof sellModalSchema>>({
-    resolver: zodResolver(sellModalSchema),
+  const form = useForm<z.infer<typeof sendModalSchema>>({
+    resolver: zodResolver(sendModalSchema),
   });
 
-  const formState = form.watch([
-    "amount",
-    "commodityName",
-    "bank",
-    "acctNumber",
-  ]);
-
-  const charge = 311;
-  const AmountReceive = formState[0] && Number(formState[0]) - charge;
+  // const formState = form.watch(["commodityWallet", "transferTo", "amount"]);
 
   const onOpenChange = () => {
     setOpen((prev) => !prev);
@@ -82,28 +67,16 @@ export default function SellModal({ portfolioCommodity }: Props) {
     if (selectedStep === STEPS.SELECT_INITIAL) {
       return "Continue";
     }
-    if (selectedStep === STEPS.SELECT_PAYMENT) {
-      return "Next";
-    }
-    return "Sell Now";
+
+    return "Send Now";
   }, [selectedStep]);
 
-  async function onSubmit(values: z.infer<typeof sellModalSchema>) {
-    startTransition(() => {
-      sellCommodity(values).then((data) => {
-        if (data?.error) {
-          toast({
-            description: data.error,
-            variant: "destructive",
-          });
-        } else {
-          console.log(data.success);
-          setData(data.success);
-          sellModalStore.onClose();
-          onOpenChange();
-        }
-      });
-    });
+  async function onSubmit(values: z.infer<typeof sendModalSchema>) {
+    try {
+      console.log(values);
+    } catch (error: any) {
+      console.log(error);
+    }
   }
 
   const onBack = () => {
@@ -126,7 +99,7 @@ export default function SellModal({ portfolioCommodity }: Props) {
             <>
               <FormField
                 control={form.control}
-                name="commodityName"
+                name="commodityWallet"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-base text-gray-700">
@@ -171,6 +144,7 @@ export default function SellModal({ portfolioCommodity }: Props) {
                   </FormItem>
                 )}
               />
+
               <div className="flex flex-col">
                 <FormField
                   control={form.control}
@@ -178,7 +152,7 @@ export default function SellModal({ portfolioCommodity }: Props) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-base text-gray-700">
-                        Amount to withdraw
+                        Amount
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -194,60 +168,15 @@ export default function SellModal({ portfolioCommodity }: Props) {
                 />
                 <div
                   className={cn(
-                    "w-full bg-green-200 rounded-b-md px-2 py-1 flex justify-between items-center",
-                    formState[0]
+                    "w-full bg-green-200 rounded-b-md px-2 py-1 flex justify-between items-center"
                   )}
                 >
                   <span className="text-sm leading-none">
                     Amount you{"'"}ll receive
                   </span>
-                  <p className="">{Number(formState[0]) - charge} NGN</p>
+                  {/* <p className="">{formState[0]} NGN</p> */}
                 </div>
               </div>
-
-              <FormField
-                control={form.control}
-                name="bankAcct"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base text-gray-700">
-                      Payment Method
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="py-3 h-12">
-                          <SelectValue
-                            className="text-lg"
-                            placeholder="Select payment method"
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="z-[100]">
-                        <SelectItem
-                          className="text-lg uppercase"
-                          value="savings"
-                        >
-                          Savings
-                        </SelectItem>
-                        <SelectItem
-                          className="text-lg uppercase"
-                          value="current"
-                        >
-                          Current
-                        </SelectItem>
-                        <SelectItem className="text-lg uppercase" value="fixed">
-                          Fixed
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
               <div className="flex flex-col items-center gap-2 w-full">
                 <Button
@@ -261,151 +190,63 @@ export default function SellModal({ portfolioCommodity }: Props) {
                 <Button
                   className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-background hover:bg-white border border-transparent hover:border-gray-800 text-gray-600 hover:text-gray-800 rounded-full"
                   disabled={isPending}
-                  onClick={sellModalStore.onClose}
+                  onClick={sendModalStore.onClose}
                 >
                   Cancel
                 </Button>
               </div>
             </>
-          ) : selectedStep === STEPS.SELECT_PAYMENT ? (
-            <div className="h-full w-full flex flex-col">
-              <div className="flex justify-between items-center gap-3">
-                <ArrowLeft onClick={onBack} />
-                <p className="text-2xl text-center font-medium">
-                  Add Bank Account
-                </p>
-                <span></span>
-              </div>
-              <div className="flex flex-col gap-4 mt-5">
-                <FormField
-                  control={form.control}
-                  name="bank"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base text-gray-700">
-                        Select Bank
-                      </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="py-3 h-12">
-                            <SelectValue
-                              className="text-lg"
-                              placeholder="Select payment method"
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="z-[100]">
-                          <SelectItem
-                            className="text-lg uppercase"
-                            value="access"
-                          >
-                            Access Bank
-                          </SelectItem>
-                          <SelectItem
-                            className="text-lg uppercase"
-                            value="union"
-                          >
-                            Union Bank
-                          </SelectItem>
-                          <SelectItem
-                            className="text-lg uppercase"
-                            value="fixed"
-                          >
-                            Fixed
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="acctNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base text-gray-700">
-                        Bank Account number
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          className="p-3 placeholder:text-lg"
-                          placeholder="Enter bank account number"
-                          {...field}
-                        />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex justify-center items-center gap-2 w-full mt-8">
-                <Button
-                  className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-green-700 hover:bg-green-600 rounded-full border-green-700 text-white"
-                  disabled={isPending}
-                  onClick={onNext}
-                >
-                  Add Bank Account
-                </Button>
-              </div>
-            </div>
           ) : (
             <div className="h-full w-full flex flex-col">
               <div className="flex justify-between items-center gap-3">
                 <ArrowLeft onClick={onBack} />
                 <p className="text-2xl text-center font-medium">
-                  review Details
+                  Review Details
                 </p>
                 <span></span>
               </div>
               <div className="w-full flex flex-col justify-center items-center my-5">
                 <div className="p-3 rounded-full bg-[#EFFECE]">
-                  <MoveUp size={28} />
+                  <ArrowUpDown size={28} />
                 </div>
-                <p className="text-lg font-medium">Sell Commodity</p>
+                <p className="text-lg font-medium">Swap Commodity</p>
               </div>
               <div className="flex flex-col my-5 border rounded-xl">
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Wallet</p>
+                  <p className="text-muted-foreground">Transfer Wallet</p>
                   <p className="text-lg font-medium text-gray-700">
-                    {formState[1]}
+                    {/* {formState[0]} (TON) */}
                   </p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Amount Bought</p>
+                  <p className="text-muted-foreground">Receiving Wallet</p>
                   <p className="text-lg font-medium text-gray-700">
-                    {Number(formState[0])}
+                    {/* {formState[1]} (TON) */}
+                  </p>
+                </div>
+                <div className="flex justify-between items-center p-3 border-b border-gray-200 last:border-b-0">
+                  <p className="text-muted-foreground">Amount Swap</p>
+                  <p className="text-lg font-medium text-gray-700">
+                    {/* {formState[2] && formatPrice(Number(formState[2]))} */}
                   </p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">You receive</p>
-                  <p className="text-lg font-medium text-gray-700">
-                    {AmountReceive}
+                  <p className="text-muted-foreground">Wallet Receives</p>
+                  <p className="text-lg font-medium capitalize text-gray-700">
+                    {/* {AmountReceive && formatPrice(AmountReceive)} */}
                   </p>
                 </div>
-                <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Fee/Charges</p>
+                <div className="flex justify-between items-center p-3 border-b border-gray-200 last:border-b-0">
+                  <p className="text-muted-foreground">Fee</p>
                   <p className="text-lg font-medium text-gray-700">
-                    N {charge}
+                    {/* N {charge} */}
                   </p>
                 </div>
-
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
                   <p className="text-muted-foreground">Rate</p>
                   <p className="text-lg font-medium text-gray-700">
                     {/* N{price && formatPrice(price)}/
                     {unit && unit.replace("per ", "")} */}
-                  </p>
-                </div>
-                <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Bank account</p>
-                  <p className="text-lg font-medium capitalize text-gray-700">
-                    {formState[2]}, {formState[3]}
                   </p>
                 </div>
               </div>
@@ -415,7 +256,7 @@ export default function SellModal({ portfolioCommodity }: Props) {
                 type="submit"
                 disabled={isPending}
               >
-                {isPending ? "Loading..." : "Confirm and Sell"}
+                {isPending ? "Loading..." : "Confirm and Send"}
               </Button>
             </div>
           )}
@@ -428,8 +269,8 @@ export default function SellModal({ portfolioCommodity }: Props) {
     <>
       <Modal
         disabled={isPending}
-        isOpen={sellModalStore.isOpen}
-        onClose={sellModalStore.onClose}
+        isOpen={sendModalStore.isOpen}
+        onClose={sendModalStore.onClose}
         actionLabel={actionLabel}
         onSubmit={() => onNext()}
         secondaryActionLabel={
@@ -437,17 +278,19 @@ export default function SellModal({ portfolioCommodity }: Props) {
         }
         secondaryAction={
           selectedStep === STEPS.SELECT_INITIAL
-            ? sellModalStore.onClose
+            ? sendModalStore.onClose
             : onBack
         }
         body={bodyContent}
-        tab={Tabs.SELL}
+        tab={Tabs.SEND}
       />
       <Dialog open={open}>
         <DialogContent className="sm:max-w-[425px]">
           <div className="grid gap-2 py-4">
             <h5 className="text-3xl font-medium text-center">Yay! 🎉</h5>
-            <p className="text-center text-xl -mb-2">Sold Successfully</p>
+            <p className="text-center text-xl -mb-2">
+              Your transaction is on the way
+            </p>
             <p className="text-center">{data && data}</p>
             <div className="flex justify-center items-center -mb-5 mt-2">
               <Link
