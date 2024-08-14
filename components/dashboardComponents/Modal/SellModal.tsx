@@ -24,11 +24,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { useBuyModalStore } from "@/hooks/use-buy-store";
 import { useSellModalStore } from "@/hooks/use-sell-store";
 import Modal from "./Modal";
 import { sellModalSchema } from "@/utils/schema";
-import { useCurrentUser } from "@/hooks/use-current-user";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +34,7 @@ import { TPortfolioCommodity } from "@/utils/types";
 import { formatPrice } from "@/utils/fnLib";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/use-toast";
-import { sellCommodity } from "@/actions/admin-transaction";
+import { sellCommodity } from "@/actions/sell-commodity";
 
 enum Tabs {
   BUY,

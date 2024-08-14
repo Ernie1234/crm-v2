@@ -32,8 +32,8 @@ import { Button } from "@/components/ui/button";
 import { useSendModalStore } from "@/hooks/use-send-store";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import ModalTrans from "./ModalTrans";
-import { sendCommodity } from "@/actions/admin-transaction";
 import { toast } from "@/components/ui/use-toast";
+import { sendCommodity } from "@/actions/send-commodity";
 
 enum Tabs {
   SEND,
