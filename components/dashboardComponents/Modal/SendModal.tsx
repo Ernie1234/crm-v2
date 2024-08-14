@@ -72,7 +72,7 @@ export default function SendModal({ portfolioCommodity }: Props) {
   }, [selectedStep]);
 
   async function onSubmit(values: z.infer<typeof sendModalSchema>) {
-    console.log(values);
+    // console.log(values);
     startTransition(() => {
       sendCommodity(values).then((data) => {
         if (data?.error) {

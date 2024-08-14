@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { TbCurrencyNaira } from "react-icons/tb";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ArrowLeft, ArrowUpDown } from "lucide-react";
@@ -33,6 +33,8 @@ import { IBuy, TPortfolioCommodity } from "@/utils/types";
 import { formatPrice } from "@/utils/fnLib";
 import { cn } from "@/lib/utils";
 import { useSwapModalStore } from "@/hooks/use-swap-store";
+import { swapCommodity } from "@/actions/swap-commodity";
+import { toast } from "@/components/ui/use-toast";
 
 enum Tabs {
   BUY,
@@ -50,9 +52,10 @@ interface Props {
 }
 
 export default function SwapModal({ portfolioCommodity, commodity }: Props) {
+  const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [isLoading, setLoading] = useState(false);
-  const [data, setData] = useState("");
+  const [data, setData] = useState<string | undefined>("");
   const [selectedStep, setSelectedStep] = useState(STEPS.SELECT_INITIAL);
   const swapModalStore = useSwapModalStore();
 
@@ -60,7 +63,7 @@ export default function SwapModal({ portfolioCommodity, commodity }: Props) {
     resolver: zodResolver(swapModalSchema),
   });
 
-  const formState = form.watch(["commodityWallet", "transferTo", "amount"]);
+  const formState = form.watch(["commodityName", "transferTo", "amount"]);
 
   const onOpenChange = () => {
     setOpen((prev) => !prev);
@@ -77,6 +80,21 @@ export default function SwapModal({ portfolioCommodity, commodity }: Props) {
   async function onSubmit(values: z.infer<typeof swapModalSchema>) {
     try {
       console.log(values);
+      startTransition(() => {
+        swapCommodity(values).then((data) => {
+          if (data?.error) {
+            toast({
+              description: data.error,
+              variant: "destructive",
+            });
+          } else {
+            console.log(data.success);
+            setData(data?.success);
+            swapModalStore.onClose();
+            onOpenChange();
+          }
+        });
+      });
     } catch (error: any) {
       console.log(error);
     }
@@ -105,7 +123,7 @@ export default function SwapModal({ portfolioCommodity, commodity }: Props) {
             <>
               <FormField
                 control={form.control}
-                name="commodityWallet"
+                name="commodityName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-base text-gray-700">

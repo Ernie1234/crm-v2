@@ -92,7 +92,7 @@ export const sellModalSchema = z.object({
   acctNumber: z.string(),
 });
 export const swapModalSchema = z.object({
-  commodityWallet: z.string(),
+  commodityName: z.string(),
   transferTo: z.string(),
   amount: z.string(),
 });
