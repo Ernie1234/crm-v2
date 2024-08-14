@@ -25,3 +25,14 @@ export function calculatePercentageChange(prices: number[]): number {
   // Format the result to 1 decimal point
   return Math.round(percentageChange * 10) / 10;
 }
+
+export function getUIDFromAddress(
+  address: string,
+  uidPrefix: string = "UID"
+): string {
+  const uidIndex = address.indexOf(uidPrefix);
+  if (uidIndex === -1) {
+    return "";
+  }
+  return address.slice(uidIndex + uidPrefix.length);
+}

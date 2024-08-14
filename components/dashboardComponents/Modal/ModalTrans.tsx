@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useBuyModalStore } from "@/hooks/use-buy-store";
-import { useSellModalStore } from "@/hooks/use-sell-store";
-import { useSwapModalStore } from "@/hooks/use-swap-store";
+import { useSendModalStore } from "@/hooks/use-send-store";
+import { useReceiveModalStore } from "@/hooks/use-receive-store";
 
 interface IModal {
   isOpen?: boolean;
@@ -21,21 +20,22 @@ interface IModal {
 }
 
 enum Tabs {
-  BUY,
-  SELL,
-  SWAP,
+  SEND,
+  RECEIVE,
 }
-const Modal = ({ isOpen, body, footer, tab }: IModal) => {
+
+const ModalTrans = ({ isOpen, body, footer, tab }: IModal) => {
   const [showModal, setShowModal] = useState(isOpen);
   const [activeTab, setActiveTab] = useState(tab);
-  const modalStore = useBuyModalStore();
-  const sellModalStore = useSellModalStore();
-  const swapModalStore = useSwapModalStore();
+  const sendModalStore = useSendModalStore();
+  const receiveModalStore = useReceiveModalStore();
 
   useEffect(() => {
     setShowModal(isOpen);
   }, [isOpen]);
+
   if (!isOpen) return null;
+
   return (
     <div className={cn(isOpen ? "flex" : "hidden")}>
       <div className="justify-center flex items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-[70] outline-none focus:outline-none bg-neutral-800/70 max-h-screen">
@@ -54,60 +54,41 @@ const Modal = ({ isOpen, body, footer, tab }: IModal) => {
               {/*header*/}
               <div className="flex items-center justify-center relative">
                 {/* <div className="text-lg font-semibold">{title}</div> */}
+
                 <div className="flex justify-between items-center w-full transition-all duration-500">
                   <p
                     className={cn(
                       "flex justify-center items-center p-4 w-full hover:cursor-pointer",
-                      activeTab === Tabs.BUY
+                      activeTab === Tabs.SEND
                         ? "rounded-none bg-white"
-                        : activeTab !== Tabs.SELL
+                        : activeTab !== Tabs.RECEIVE
                         ? "rounded-none bg-gray-200"
                         : "bg-gray-200 rounded-br-2xl"
                     )}
                     onClick={() => {
-                      setActiveTab(Tabs.BUY);
-                      sellModalStore.onClose();
-                      swapModalStore.onClose();
-                      modalStore.onOpen();
+                      setActiveTab(Tabs.SEND);
+                      receiveModalStore.onClose();
+                      sendModalStore.onOpen();
                     }}
                   >
-                    Buy
+                    Send
                   </p>
                   <p
                     className={cn(
                       "flex justify-center items-center p-4 w-full hover:cursor-pointer",
-                      activeTab === Tabs.SELL
+                      activeTab === Tabs.RECEIVE
                         ? "rounded-none bg-white"
-                        : activeTab === Tabs.SWAP
+                        : activeTab === Tabs.SEND
                         ? "rounded-br-2xl bg-gray-200"
                         : "bg-gray-200 rounded-bl-2xl"
                     )}
                     onClick={() => {
-                      setActiveTab(Tabs.SELL);
-                      modalStore.onClose();
-                      swapModalStore.onClose();
-                      sellModalStore.onOpen();
+                      setActiveTab(Tabs.RECEIVE);
+                      sendModalStore.onClose();
+                      receiveModalStore.onOpen();
                     }}
                   >
-                    Sell
-                  </p>
-                  <p
-                    className={cn(
-                      "flex justify-center items-center p-4 w-full hover:cursor-pointer",
-                      activeTab === Tabs.SWAP
-                        ? "rounded-none bg-white"
-                        : activeTab !== Tabs.SELL
-                        ? "bg-gray-200 rounded-bl-none"
-                        : "bg-gray-200 rounded-bl-2xl"
-                    )}
-                    onClick={() => {
-                      setActiveTab(Tabs.SWAP);
-                      modalStore.onClose();
-                      sellModalStore.onClose();
-                      swapModalStore.onOpen();
-                    }}
-                  >
-                    Swap
+                    Receive
                   </p>
                 </div>
               </div>
@@ -120,4 +101,5 @@ const Modal = ({ isOpen, body, footer, tab }: IModal) => {
     </div>
   );
 };
-export default Modal;
+
+export default ModalTrans;

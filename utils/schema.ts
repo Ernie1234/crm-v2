@@ -97,7 +97,8 @@ export const swapModalSchema = z.object({
   amount: z.string(),
 });
 export const sendModalSchema = z.object({
-  commodityWallet: z.string(),
-  transferTo: z.string(),
+  commodityName: z.string(),
+  address: z.string(),
   amount: z.string(),
+  note: z.string().optional(),
 });

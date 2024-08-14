@@ -86,6 +86,8 @@ export async function RecentTransaction({ className, ...props }: CardProps) {
                       ? "bg-yellow-100"
                       : t.status === "success"
                       ? "bg-green-100 text-green-600"
+                      : t.status === "complete"
+                      ? "bg-green-100 text-green-600"
                       : "bg-red-200"
                   )}
                 >

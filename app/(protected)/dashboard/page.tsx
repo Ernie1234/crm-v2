@@ -10,7 +10,7 @@ import { Suspense } from "react";
 export default async function page() {
   const portfolioData = await portfolioCommodity();
 
-  if (!Array.isArray(portfolioData)) return <p>Error fetching portfolio.</p>;
+  // if (!Array.isArray(portfolioData)) return <p>Error fetching portfolio.</p>;
 
   return (
     <div className="w-full">

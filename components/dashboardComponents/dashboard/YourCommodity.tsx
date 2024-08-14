@@ -12,10 +12,31 @@ import {
 import PortfolioRow from "../portfolio/PortfolioRow";
 
 interface Props {
-  portfolio: TPortfolioCommodity[];
+  portfolio:
+    | TPortfolioCommodity[]
+    | {
+        error: string;
+      }
+    | undefined;
 }
 
 export default function YourCommodity({ portfolio }: Props) {
+  if (!Array.isArray(portfolio)) return <p>Error fetching portfolio here.</p>;
+  // if (portfolio?.error) return <p>Error fetching portfolio here.</p>;
+  if (portfolio?.length === 0)
+    return (
+      <div className="bg-white p-4 border border-gray-200 h-full shadow-sm rounded-xl">
+        <div className="flex w-full justify-center items-center">
+          <Empty
+            title="No commodities"
+            subtitle="Your commodities will appear here"
+            showBtn
+            btnTitle="Explore Commodity"
+          />
+        </div>
+      </div>
+    );
+
   return (
     <div className="flex flex-col gap-3 w-full">
       <div className="flex justify-between items-center">

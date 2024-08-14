@@ -30,8 +30,10 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useSendModalStore } from "@/hooks/use-send-store";
-import Modal from "./Modal";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import ModalTrans from "./ModalTrans";
+import { sendCommodity } from "@/actions/admin-transaction";
+import { toast } from "@/components/ui/use-toast";
 
 enum Tabs {
   SEND,
@@ -50,14 +52,12 @@ export default function SendModal({ portfolioCommodity }: Props) {
   const [isPending, startTransition] = useTransition();
   const sendModalStore = useSendModalStore();
   const [open, setOpen] = useState(false);
-  const [data, setData] = useState("");
+  const [data, setData] = useState<string | undefined>("");
   const [selectedStep, setSelectedStep] = useState(STEPS.SELECT_INITIAL);
 
   const form = useForm<z.infer<typeof sendModalSchema>>({
     resolver: zodResolver(sendModalSchema),
   });
-
-  // const formState = form.watch(["commodityWallet", "transferTo", "amount"]);
 
   const onOpenChange = () => {
     setOpen((prev) => !prev);
@@ -72,11 +72,22 @@ export default function SendModal({ portfolioCommodity }: Props) {
   }, [selectedStep]);
 
   async function onSubmit(values: z.infer<typeof sendModalSchema>) {
-    try {
-      console.log(values);
-    } catch (error: any) {
-      console.log(error);
-    }
+    console.log(values);
+    startTransition(() => {
+      sendCommodity(values).then((data) => {
+        if (data?.error) {
+          toast({
+            description: data.error,
+            variant: "destructive",
+          });
+        } else {
+          console.log(data.success);
+          setData(data.success);
+          sendModalStore.onClose();
+          onOpenChange();
+        }
+      });
+    });
   }
 
   const onBack = () => {
@@ -91,15 +102,17 @@ export default function SendModal({ portfolioCommodity }: Props) {
       return setSelectedStep((prev) => prev + 1);
   };
 
+  const formState = form.watch(["commodityName", "amount", "address"]);
+
   const bodyContent = (
     <div className="flex flex-col gap-4">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {selectedStep === STEPS.SELECT_INITIAL ? (
             <>
               <FormField
                 control={form.control}
-                name="commodityWallet"
+                name="commodityName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-base text-gray-700">
@@ -161,7 +174,6 @@ export default function SendModal({ portfolioCommodity }: Props) {
                           {...field}
                         />
                       </FormControl>
-
                       <FormMessage />
                     </FormItem>
                   )}
@@ -178,13 +190,52 @@ export default function SendModal({ portfolioCommodity }: Props) {
                 </div>
               </div>
 
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base text-gray-700">
+                      Send to
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="p-3 placeholder:text-base"
+                        placeholder="Recipient wallet address"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="note"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base text-gray-700">
+                      Note
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="p-3 placeholder:text-base"
+                        placeholder="Write an optional message"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className="flex flex-col items-center gap-2 w-full">
                 <Button
                   className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-green-700 hover:bg-green-600 rounded-full border-green-700 text-white"
                   disabled={isPending}
                   onClick={onNext}
                 >
-                  Continue
+                  Send
                 </Button>
 
                 <Button
@@ -213,27 +264,27 @@ export default function SendModal({ portfolioCommodity }: Props) {
               </div>
               <div className="flex flex-col my-5 border rounded-xl">
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Transfer Wallet</p>
+                  <p className="text-muted-foreground">Wallet</p>
                   <p className="text-lg font-medium text-gray-700">
-                    {/* {formState[0]} (TON) */}
+                    {formState[0]} (TON)
                   </p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Receiving Wallet</p>
+                  <p className="text-muted-foreground">Recipient Address</p>
                   <p className="text-lg font-medium text-gray-700">
-                    {/* {formState[1]} (TON) */}
+                    {formState[2]}
                   </p>
                 </div>
                 <div className="flex justify-between items-center p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Amount Swap</p>
+                  <p className="text-muted-foreground">Amount Sent</p>
                   <p className="text-lg font-medium text-gray-700">
-                    {/* {formState[2] && formatPrice(Number(formState[2]))} */}
+                    {formState[2] && formatPrice(Number(formState[1]))}
                   </p>
                 </div>
                 <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Wallet Receives</p>
+                  <p className="text-muted-foreground">Recipient Receives</p>
                   <p className="text-lg font-medium capitalize text-gray-700">
-                    {/* {AmountReceive && formatPrice(AmountReceive)} */}
+                    {formState[2] && formatPrice(Number(formState[1]))}
                   </p>
                 </div>
                 <div className="flex justify-between items-center p-3 border-b border-gray-200 last:border-b-0">
@@ -267,7 +318,7 @@ export default function SendModal({ portfolioCommodity }: Props) {
 
   return (
     <>
-      <Modal
+      <ModalTrans
         disabled={isPending}
         isOpen={sendModalStore.isOpen}
         onClose={sendModalStore.onClose}

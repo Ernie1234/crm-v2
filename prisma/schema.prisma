@@ -21,6 +21,8 @@ enum TransactionType {
   BOUGHT
   SOLD
   SWAP
+  SEND
+  RECEIVED
 }
 
 model User {

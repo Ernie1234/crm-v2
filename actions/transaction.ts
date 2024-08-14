@@ -69,9 +69,9 @@ export const getAllTransactions = async () => {
 
 export const getWalletAddress = async () => {
   try {
-    const session = await auth();
-    if (session === null || !session.user)
-      return { error: "Authentication failed!" };
+    // const session = await auth();
+    // if (session === null || !session.user)
+    //   return { error: "Authentication failed!" };
 
     const user = await serverCurrentUser();
     if (!user) return { error: "Authentication failed!" };
