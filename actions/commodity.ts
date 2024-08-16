@@ -20,14 +20,15 @@ export const createCommodity = async (
   const maxQuantity = Number(validateFields.data?.maxQuantity);
 
   const user = await getUserByEmail(email);
-
   if (!user) return { error: "Authentication failed!" };
+
+  const { name, description, unit } = validateFields.data;
 
   await db.commodity.create({
     data: {
-      name: validateFields.data?.name,
-      description: validateFields.data?.description,
-      unit: validateFields.data.unit,
+      name,
+      description,
+      unit,
       minQuantity,
       maxQuantity,
       price: {
@@ -36,6 +37,19 @@ export const createCommodity = async (
       userId: user.id,
     },
     include: { user: true, price: true },
+  });
+
+  const users = await db.user.findMany();
+
+  await db.notification.updateMany({
+    where: {
+      userId: { in: users.map((user) => user.id) },
+    },
+    data: {
+      userId: user.id,
+      title: "New Commodity",
+      body: `A new commodity "${name}" has been added`,
+    },
   });
 
   revalidatePath("/dashboard/commodity");

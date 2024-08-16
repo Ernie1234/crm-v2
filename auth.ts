@@ -41,6 +41,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (!existingUser) return token;
 
       token.role = existingUser.role;
+      token.hasNotification = existingUser.hasNotification;
 
       return token;
     },

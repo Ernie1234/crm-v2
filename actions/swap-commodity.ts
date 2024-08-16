@@ -62,14 +62,14 @@ export const swapCommodity = async (
     await db.portfolio.upsert({
       where: { userId, commodityName: transferTo },
       update: {
-        balance: userPortfolio.balance + transferToPurchase,
+        balance: userPortfolio.balance + price,
         totalQuantity:
           Number(userPortfolio.totalQuantity) + Number(transferToQuantity),
       },
       create: {
         userId,
         commodityName: transferTo,
-        balance: transferToPurchase,
+        balance: price,
         color,
         totalQuantity:
           Number(userPortfolio.totalQuantity) + Number(transferToQuantity),
@@ -88,13 +88,16 @@ export const swapCommodity = async (
       },
     });
 
-    console.log(price);
-    console.log(purchase);
-    console.log(transferToPurchase);
-    console.log(quantity);
-    console.log(transferToQuantity);
-    console.log(commodityName, ": ", currentPrice);
-    console.log(transferTo, ": ", transferToPrice);
+    // console.log(price);
+    // console.log(purchase);
+    // console.log(transferToPurchase);
+    // console.log(quantity);
+    // console.log(transferToQuantity);
+    // console.log(commodityName, ": ", currentPrice);
+    // console.log(transferTo, ": ", transferToPrice);
+
+    revalidatePath(`/dashboard/transaction`);
+    revalidatePath(`/dashboard/portfolio`);
 
     return {
       success: `You successfully swap ${quantity} TON to ${transferToQuantity} TON`,
