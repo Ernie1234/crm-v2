@@ -49,21 +49,55 @@ export const swapCommodity = async (
     const transferToPurchase =
       Number(transferToQuantity) && Number(transferToQuantity) * price;
 
-    console.log(currentPrice, price, transferToPrice);
-    console.log(purchase);
-    console.log(transferToPurchase);
-    if (userPortfolio?.balance < purchase)
+    if (userPortfolio?.balance < price)
       return {
         error: "You are low on this commodity to complete this transaction!",
       };
+    const color = `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`;
 
+    await db.portfolio.update({
+      where: { userId, commodityName },
+      data: { balance: userPortfolio.balance - price },
+    });
+    await db.portfolio.upsert({
+      where: { userId, commodityName: transferTo },
+      update: {
+        balance: userPortfolio.balance + transferToPurchase,
+        totalQuantity:
+          Number(userPortfolio.totalQuantity) + Number(transferToQuantity),
+      },
+      create: {
+        userId,
+        commodityName: transferTo,
+        balance: transferToPurchase,
+        color,
+        totalQuantity:
+          Number(userPortfolio.totalQuantity) + Number(transferToQuantity),
+      },
+    });
+    await db.transaction.create({
+      data: {
+        userId,
+        reference: transferTo,
+        commodityName,
+        price,
+        quantity: transferToPurchase,
+        unit: "per ton",
+        status: "success",
+        type: TransactionType.SWAP,
+      },
+    });
+
+    console.log(price);
+    console.log(purchase);
+    console.log(transferToPurchase);
     console.log(quantity);
     console.log(transferToQuantity);
     console.log(commodityName, ": ", currentPrice);
     console.log(transferTo, ": ", transferToPrice);
 
     return {
-      success: `You successfully sold (N${price}). The amount will be deposited in your bank account shortly!`,
+      success: `You successfully swap ${quantity} TON to ${transferToQuantity} TON`,
     };
   } catch (error) {
     console.log(error);
