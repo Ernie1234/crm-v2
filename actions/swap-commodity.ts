@@ -38,19 +38,27 @@ export const swapCommodity = async (
     });
     const currentPrice = currentCommodity?.price.at(-1)?.price;
     const transferToPrice = transferToCommodity?.price.at(-1)?.price;
-    const quantity = (currentPrice && price / currentPrice)?.toFixed(4);
+    const quantity = (currentPrice && price / currentPrice)?.toFixed(6);
+    const transferToQuantity = (
+      transferToPrice && price / transferToPrice
+    )?.toFixed(6);
     if (!quantity || !currentPrice || !transferToPrice)
       return { error: "Commodity not found or price not available!" };
 
     const purchase = Number(quantity) && Number(quantity) * price;
+    const transferToPurchase =
+      Number(transferToQuantity) && Number(transferToQuantity) * price;
 
+    console.log(currentPrice, price, transferToPrice);
     console.log(purchase);
+    console.log(transferToPurchase);
     if (userPortfolio?.balance < purchase)
       return {
         error: "You are low on this commodity to complete this transaction!",
       };
 
     console.log(quantity);
+    console.log(transferToQuantity);
     console.log(commodityName, ": ", currentPrice);
     console.log(transferTo, ": ", transferToPrice);
 
