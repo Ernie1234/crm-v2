@@ -18,6 +18,7 @@ import { ChevronsUpDown } from "lucide-react";
 import SoldTransactionRow from "./SoldTransactionRow";
 import { TransactionType } from "@prisma/client";
 import SendTransactionRow from "./SendTransactionRow";
+import SwapTransactionRow from "./SwapTransactionRow";
 
 enum Tabs {
   BOUGHT,
@@ -45,9 +46,14 @@ export default function Table({ allTrans }: Props) {
     (t) => t.type === TransactionType.SOLD
   );
   // TO GET ALL TRANSACTIONS THAT HAS THE TYPE === SOLD
+  const swapTransactions = allTrans.filter(
+    (t) => t.type === TransactionType.SWAP
+  );
+  // TO GET ALL TRANSACTIONS THAT HAS THE TYPE === SEND
   const sendTransactions = allTrans.filter(
     (t) => t.type === TransactionType.SEND
   );
+  // TO GET ALL TRANSACTIONS THAT HAS THE TYPE === RECEIVED
   const recievedTransactions = allTrans.filter(
     (t) => t.type === TransactionType.RECEIVED
   );
@@ -80,6 +86,19 @@ export default function Table({ allTrans }: Props) {
           onClick={() => setActiveTab(Tabs.SOLD)}
         >
           Withdrawals
+        </p>
+        <p
+          className={cn(
+            "flex justify-center items-center p-4 w-full hover:cursor-pointer",
+            activeTab === Tabs.SWAP
+              ? "rounded-none bg-white"
+              : activeTab !== Tabs.WITHDRAWAL
+              ? "rounded-none bg-gray-200"
+              : "bg-gray-200 rounded-br-2xl"
+          )}
+          onClick={() => setActiveTab(Tabs.SWAP)}
+        >
+          Commodity swap
         </p>
         <p
           className={cn(
@@ -143,6 +162,51 @@ export default function Table({ allTrans }: Props) {
                       price={item.price}
                       quantity={item.quantity}
                       status={item.status}
+                    />
+                  );
+                })
+              )}
+            </TableBody>
+          </TransactionTable>
+        </div>
+      )}
+      {activeTab === Tabs.SWAP && (
+        <div className="rounded-2xl bg-white">
+          <TransactionTable>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="flex gap-1 items-center">
+                  Date <ChevronsUpDown size={18} />
+                </TableHead>
+                <TableHead>Transfer Wallet</TableHead>
+                <TableHead>Amount swap</TableHead>
+                <TableHead>Receiving wallet</TableHead>
+                <TableHead>Wallet Received</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="px-8">
+              {swapTransactions.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5}>
+                    <p className="w-full text-xl font-semibold py-20 text-center">
+                      No sold transaction yet!
+                    </p>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                swapTransactions.map((item) => {
+                  return (
+                    <SwapTransactionRow
+                      id={item.id}
+                      key={item.id}
+                      name={item.commodityName}
+                      date={item.createdAt}
+                      amount={item.price}
+                      status={item.status}
+                      receives={item.quantity}
+                      transferTo={item.reference}
                     />
                   );
                 })
