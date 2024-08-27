@@ -1,12 +1,26 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ArrowLeft, MoveDown } from "lucide-react";
 import { TbCurrencyNaira } from "react-icons/tb";
 import * as z from "zod";
 
+import { Button } from "@/components/ui/button";
+import { useBuyModalStore } from "@/hooks/use-buy-store";
+import Modal from "./Modal";
+
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+
+import { formatPrice, maskNumber } from "@/utils/fnLib";
+import { schema } from "@/utils/schema";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import Link from "next/link";
+import { toast } from "@/components/ui/use-toast";
+import { IBuy } from "@/utils/types";
+import Payment from "@/components/Paystack/Payment";
+import { usePaystackPayment } from "react-paystack";
 import {
   Form,
   FormControl,
@@ -15,10 +29,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useBuyModalStore } from "@/hooks/use-buy-store";
-import Modal from "./Modal";
 import {
   Select,
   SelectContent,
@@ -26,21 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-
-import { formatPrice, maskNumber } from "@/utils/fnLib";
-import { buyModalSchema } from "@/utils/schema";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import Link from "next/link";
-import { toast } from "@/components/ui/use-toast";
-import { IBuy } from "@/utils/types";
+import { createTransaction } from "@/actions/transaction";
 
 enum Tabs {
   BUY,
@@ -49,13 +45,13 @@ enum Tabs {
 }
 enum STEPS {
   SELECT_INITIAL = 0,
-  SELECT_PAYMENT = 1,
-  SELECT_DETAILS = 2,
+  SELECT_DETAILS = 1,
 }
 
 interface Props {
   commodity: IBuy[] | undefined;
 }
+const apiKey = process.env.NEXT_PUBLIC_PAYSTACK_API_KEY as string;
 
 export default function BuyModal({ commodity }: Props) {
   const [isLoading, setLoading] = useState(false);
@@ -63,15 +59,20 @@ export default function BuyModal({ commodity }: Props) {
   const modalStore = useBuyModalStore();
   const [open, setOpen] = useState(false);
   const [data, setData] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const user = useCurrentUser();
-  const email = user?.email;
+  const email = user?.email as string;
 
-  const form = useForm<z.infer<typeof buyModalSchema>>({
-    resolver: zodResolver(buyModalSchema),
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      quantity: "1",
+    },
   });
 
-  const formState = form.watch(["commodityName", "quantity", "cardNumber"]);
+  const formState = form.watch(["commodityName", "quantity"]);
 
   const quantity = commodity?.find((value) => {
     return value.name === formState[0];
@@ -82,6 +83,8 @@ export default function BuyModal({ commodity }: Props) {
   const price = quantity && quantity?.price.at(-1)?.price;
   const charge = 311;
   const totalPrice = price && formatPrice(Number(formState[1]) * price ?? 1);
+  const payPrice = price && Number(formState[1]) * price + charge;
+  const amount = payPrice && payPrice * 100;
 
   const onOpenChange = () => {
     setOpen((prev) => !prev);
@@ -91,33 +94,15 @@ export default function BuyModal({ commodity }: Props) {
     if (selectedStep === STEPS.SELECT_INITIAL) {
       return "Continue";
     }
-    if (selectedStep === STEPS.SELECT_PAYMENT) {
-      return "Next";
-    }
     return "Buy Now";
   }, [selectedStep]);
 
-  async function onSubmit(values: z.infer<typeof buyModalSchema>) {
-    try {
-      setLoading(true);
-      const response = await fetch("/api/transaction", {
-        method: "POST",
-        body: JSON.stringify({ ...values, totalPrice, email, unit }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      setLoading(false);
-      setData(data.success);
-      modalStore.onClose();
-      onOpenChange();
-    } catch (error: any) {
-      toast({
-        description: error,
-        variant: "destructive",
-      });
-    }
+  async function onSubmit(values: z.infer<typeof schema>) {
+    // Perform some action with the form data
+    console.log(values);
+    setShowPreview(true);
+    if (selectedStep !== STEPS.SELECT_DETAILS)
+      return setSelectedStep((prev) => prev + 1);
   }
 
   const onBack = () => {
@@ -132,12 +117,56 @@ export default function BuyModal({ commodity }: Props) {
       return setSelectedStep((prev) => prev + 1);
   };
 
+  const handleBuy = () => {
+    setLoading(true);
+
+    startTransition(() => {
+      createTransaction({
+        commodityName: formState[0],
+        quantity: Number(formState[1]),
+        unit: unit as string,
+        price: payPrice as number,
+      }).then((data) => {
+        if (data?.error) {
+          toast({
+            description: data.error,
+            variant: "destructive",
+          });
+        } else {
+          setLoading(false);
+          setData(data?.success as string);
+          modalStore.onClose();
+          onOpenChange();
+        }
+      });
+    });
+  };
+
+  const onSuccess = (reference: any) => {
+    handleBuy();
+    console.log(reference.status);
+  };
+
+  const onClose = () => {
+    // Handle payment close
+    console.log("Payment closed");
+  };
+
+  const config = {
+    reference: new Date().getTime().toString(),
+    email,
+    amount: Number(amount),
+    publicKey: apiKey,
+  };
+
+  const initializePayment = usePaystackPayment(config);
+
   const bodyContent = (
     <div className="flex flex-col gap-4">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          {selectedStep === STEPS.SELECT_INITIAL ? (
-            <>
+      {!showPreview || selectedStep === STEPS.SELECT_INITIAL ? (
+        <>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
                 name="commodityName"
@@ -182,71 +211,36 @@ export default function BuyModal({ commodity }: Props) {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base text-gray-700 flex justify-between items-center gap-3">
-                      <span className="">{min}</span>
-                      <span className="">{formState[1]}</span>
-                      {max}
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        className="p-3 placeholder:text-lg w-full h-2 bg-green-200 rounded-full appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75"
-                        placeholder="Enter Quantity"
-                        {...field}
-                        type="range"
-                        min={min || 1}
-                        max={max || 10}
-                        step={1}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+              <div>
+                <label
+                  htmlFor="quantity"
+                  className="text-base text-gray-700 flex justify-between items-center gap-3"
+                >
+                  <span>{min}</span>
+                  <span>{formState[1]}</span>
+                  <span>{max}</span>
+                </label>
+                <input
+                  id="quantity"
+                  type="range"
+                  {...form.register("quantity", { min, max })}
+                  className="block w-full px-3 py-1.5 placeholder:text-lg bg-green-200 rounded-full appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75"
+                  placeholder="Enter Quantity"
+                  min={min}
+                  max={max}
+                  step={1}
+                />
+                {form.formState.errors.quantity && (
+                  <p className="text-red-500">
+                    {form.formState.errors.quantity.message}
+                  </p>
                 )}
-              />
-              <FormField
-                control={form.control}
-                name="paymentMethod"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base text-gray-700">
-                      Payment Method
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="py-3 h-12">
-                          <SelectValue
-                            className="text-lg"
-                            placeholder="Select payment method"
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="z-[100]">
-                        <SelectItem className="text-lg uppercase" value="USSD">
-                          USSD
-                        </SelectItem>
-                        <SelectItem className="text-lg uppercase" value="CARD">
-                          CARD
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+              </div>
               <div className="flex flex-col items-center gap-2 w-full">
                 <Button
                   className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-green-700 hover:bg-green-600 rounded-full border-green-700 text-white"
                   disabled={isLoading}
-                  onClick={onNext}
+                  onClick={form.handleSubmit(onSubmit)}
                 >
                   Continue
                 </Button>
@@ -259,182 +253,67 @@ export default function BuyModal({ commodity }: Props) {
                   Cancel
                 </Button>
               </div>
-            </>
-          ) : selectedStep === STEPS.SELECT_PAYMENT ? (
-            <div className="h-full w-full flex flex-col">
-              <div className="flex justify-between items-center gap-3">
-                <ArrowLeft onClick={onBack} />
-                <p className="text-2xl text-center font-medium">
-                  Add Payment method
-                </p>
-                <span></span>
-              </div>
-              <div className="flex flex-col gap-4 mt-5">
-                <FormField
-                  control={form.control}
-                  name="cardNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base text-gray-700">
-                        Card Number
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          className="p-3 placeholder:text-lg"
-                          placeholder="Enter card number"
-                          {...field}
-                        />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="cardHolderName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base text-gray-700">
-                        Card Holder Name
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          className="p-3 placeholder:text-lg"
-                          placeholder="Enter Card Holder Name"
-                          {...field}
-                        />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="flex w-full flex-col md:flex-row gap-4">
-                  <FormField
-                    control={form.control}
-                    name="expiryDate"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-base text-gray-700">
-                          Expiry Date
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            className="p-3 placeholder:text-lg"
-                            placeholder="MM/YY"
-                            {...field}
-                          />
-                        </FormControl>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="cvc"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-base text-gray-700">
-                          CVC
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            className="p-3 placeholder:text-lg"
-                            placeholder="123"
-                            {...field}
-                          />
-                        </FormControl>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-center items-center gap-2 w-full mt-8">
-                <Button
-                  className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-green-700 hover:bg-green-600 rounded-full border-green-700 text-white"
-                  disabled={isLoading}
-                  onClick={onNext}
-                >
-                  Next
-                </Button>
-              </div>
+            </form>
+          </Form>
+        </>
+      ) : (
+        <div className="h-full w-full flex flex-col">
+          <div className="flex justify-between items-center gap-3">
+            <ArrowLeft onClick={onBack} />
+            <p className="text-2xl text-center font-medium">review Details</p>
+            <span></span>
+          </div>
+          <div className="w-full flex flex-col justify-center items-center my-5">
+            <div className="p-3 rounded-full bg-[#EFFECE]">
+              <MoveDown size={28} />
             </div>
-          ) : (
-            <div className="h-full w-full flex flex-col">
-              <div className="flex justify-between items-center gap-3">
-                <ArrowLeft onClick={onBack} />
-                <p className="text-2xl text-center font-medium">
-                  review Details
-                </p>
-                <span></span>
-              </div>
-              <div className="w-full flex flex-col justify-center items-center my-5">
-                <div className="p-3 rounded-full bg-[#EFFECE]">
-                  <div className="w-full flex flex-col justify-center items-center my-5">
-                    <div className="p-3 rounded-full bg-[#EFFECE]">
-                      <MoveDown size={28} />
-                    </div>
-                    <p className="text-lg font-medium">Sell Commodity</p>
-                  </div>
-                </div>
-                <p className="text-lg font-medium">Sell Commodity</p>
-              </div>
-              <div className="flex flex-col my-5 border rounded-xl">
-                <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Wallet</p>
-                  <p className="text-lg font-medium text-gray-700">
-                    {formState[0]}
-                  </p>
-                </div>
-                <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Amount Bought</p>
-                  <p className="text-lg font-medium text-gray-700">
-                    N {totalPrice && totalPrice + charge}
-                  </p>
-                </div>
-                <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">You receive</p>
-                  <p className="text-lg font-medium text-gray-700">
-                    {/* N {price && formatPrice(Number(formState[1]) * price ?? 1)} */}
-                    {formState[1]} {unit && unit.replace("per ", "")}
-                  </p>
-                </div>
-                <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Fee/Charges</p>
-                  <p className="text-lg font-medium text-gray-700">
-                    N {charge}
-                  </p>
-                </div>
-
-                <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Rate</p>
-                  <p className="text-lg font-medium text-gray-700">
-                    N{price && formatPrice(price)}/
-                    {unit && unit.replace("per ", "")}
-                  </p>
-                </div>
-                <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
-                  <p className="text-muted-foreground">Payment Method</p>
-                  <p className="text-lg font-medium text-gray-700">
-                    {formState[2] && maskNumber(Number(formState[2]))}
-                  </p>
-                </div>
-              </div>
-              <Button
-                className="p-6 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-green-700 hover:bg-green-600 rounded-full border-green-700 text-white"
-                type="submit"
-                disabled={isLoading}
-              >
-                {isLoading ? "Loading..." : "Buy Now"}
-              </Button>
+            <p className="text-lg font-medium">Buy Commodity</p>
+          </div>
+          <div className="flex flex-col my-5 border rounded-xl">
+            <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
+              <p className="text-muted-foreground">Wallet</p>
+              <p className="text-lg font-medium text-gray-700">
+                {formState[0]}
+              </p>
             </div>
-          )}
-        </form>
-      </Form>
+            <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
+              <p className="text-muted-foreground">Amount Bought</p>
+              <p className="text-lg font-medium text-gray-700">
+                N {payPrice && formatPrice(Number(payPrice))}
+              </p>
+            </div>
+            <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
+              <p className="text-muted-foreground">You receive</p>
+              <p className="text-lg font-medium text-gray-700">
+                {/* N {price && formatPrice(Number(formState[1]) * price ?? 1)} */}
+                {formState[1]} {unit && unit.replace("per ", "")}
+              </p>
+            </div>
+            <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
+              <p className="text-muted-foreground">Fee/Charges</p>
+              <p className="text-lg font-medium text-gray-700">N {charge}</p>
+            </div>
+
+            <div className="flex justify-between p-3 border-b border-gray-200 last:border-b-0">
+              <p className="text-muted-foreground">Rate</p>
+              <p className="text-lg font-medium text-gray-700">
+                N{price && formatPrice(price)}/
+                {unit && unit.replace("per ", "")}
+              </p>
+            </div>
+          </div>
+          <button
+            className="p-4 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-80 transition-all duration-500 w-full bg-green-700 hover:bg-green-600 rounded-full border-green-700 text-white"
+            onClick={() => {
+              initializePayment({ onSuccess, onClose });
+            }}
+          >
+            Buy now
+          </button>
+        </div>
+      )}
+      {/* </form>
+      </Form> */}
     </div>
   );
 

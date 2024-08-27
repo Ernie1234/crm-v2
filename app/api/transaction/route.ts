@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 import axios from "axios";
 import { db } from "@/utils/db";
 import { TransactionType } from "@prisma/client";

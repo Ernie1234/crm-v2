@@ -11,7 +11,6 @@ export default async function page() {
   const portfolioData = await portfolioCommodity();
 
   // if (!Array.isArray(portfolioData)) return <p>Error fetching portfolio.</p>;
-
   return (
     <div className="w-full">
       <Nav header="Dashboard" />

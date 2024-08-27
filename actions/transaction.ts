@@ -1,47 +1,89 @@
-import serverCurrentUser from "@/app/_components/serverCurrentUser";
+"use server";
+
 import { auth } from "@/auth";
-import { getUserByEmail } from "@/utils/data";
+
 import { db } from "@/utils/db";
-import axios from "axios";
+import { TransactionType } from "@prisma/client";
+import serverCurrentUser from "@/app/_components/serverCurrentUser";
 
-const apiKey = process.env.NEXT_PAYSTACK_API_KEY;
+interface Props {
+  commodityName: string;
+  quantity: number;
+  price: number;
+  unit: string;
+}
 
-export const getTransaction = async () => {
+export const createTransaction = async ({
+  commodityName,
+  quantity,
+  price,
+  unit,
+}: Props) => {
   try {
-    const session = await auth();
-    if (session === null || !session.user)
-      return { error: "Authentication failed!" };
-
-    const userEmail = session.user.email;
-    if (userEmail === null || !userEmail)
-      return { error: "Authentication failed!" };
-
-    const user = await getUserByEmail(userEmail);
+    const user = await serverCurrentUser();
     if (!user) return { error: "Authentication failed!" };
 
-    const trans = await db.transaction.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "desc" },
+    const userId = user && (user.id as string);
+
+    const trans = await db.transaction.create({
+      data: {
+        commodityName,
+        price,
+        unit,
+        userId,
+        status: "success",
+        quantity: Number(quantity),
+        type: TransactionType.BOUGHT,
+      },
     });
 
-    const ref = trans.map(async (tran) => {
-      const res = await axios.get(
-        `https://api.paystack.co/transaction/verify/${tran.reference}`,
-        {
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-          },
-        }
-      );
-      const verificationData = await res.data.data;
-
-      return { ...tran, ...verificationData };
+    const port = await db.portfolio.findFirst({
+      where: { userId, commodityName },
     });
 
-    const finalResult = await Promise.all(ref);
-    return finalResult;
+    if (port === null) {
+      const color = `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`;
+      await db.portfolio.create({
+        data: {
+          userId,
+          commodityName,
+          totalQuantity: Number(quantity),
+          balance: price,
+          color,
+        },
+      });
+    } else {
+      await db.portfolio.update({
+        where: { userId, commodityName },
+        data: {
+          totalQuantity: Number(port?.totalQuantity + quantity),
+          balance: port.balance + trans.price,
+        },
+      });
+    }
+
+    await db.notification.create({
+      data: {
+        userId,
+        title: "Bought Commodity",
+        body: `You have added a new commodity`,
+      },
+    });
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        hasNotification: true,
+      },
+    });
+
+    return {
+      success: `You successfully sent (#${price}) to buy ${quantity} ${unit}`,
+    };
   } catch (error) {
     console.log(error);
+    return {
+      error: `Something went wrong here1!`,
+    };
   }
 };
 
@@ -87,3 +129,42 @@ export const getWalletAddress = async () => {
     };
   }
 };
+
+// export const getTransaction = async () => {
+//   try {
+//     const session = await auth();
+//     if (session === null || !session.user)
+//       return { error: "Authentication failed!" };
+
+//     const userEmail = session.user.email;
+//     if (userEmail === null || !userEmail)
+//       return { error: "Authentication failed!" };
+
+//     const user = await getUserByEmail(userEmail);
+//     if (!user) return { error: "Authentication failed!" };
+
+//     const trans = await db.transaction.findMany({
+//       where: { userId: user.id },
+//       orderBy: { createdAt: "desc" },
+//     });
+
+//     const ref = trans.map(async (tran) => {
+//       const res = await axios.get(
+//         `https://api.paystack.co/transaction/verify/${tran.reference}`,
+//         {
+//           headers: {
+//             Authorization: `Bearer ${apiKey}`,
+//           },
+//         }
+//       );
+//       const verificationData = await res.data.data;
+
+//       return { ...tran, ...verificationData };
+//     });
+
+//     const finalResult = await Promise.all(ref);
+//     return finalResult;
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };

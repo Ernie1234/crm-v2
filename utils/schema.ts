@@ -84,6 +84,14 @@ export const buyModalSchema = z.object({
   expiryDate: z.string(),
   cvc: z.string(),
 });
+// Define the schema using Zod
+export const schema = z.object({
+  commodityName: z.string().min(1, "Please select a commodity"),
+  quantity: z
+    .string()
+    .min(1, "Quantity must be at least 1")
+    .max(10, "Quantity cannot exceed 10"),
+});
 export const sellModalSchema = z.object({
   commodityName: z.string(),
   amount: z.string(),

@@ -12,6 +12,7 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.4.1",
     "@hookform/resolvers": "^3.6.0",
+    "@next/env": "^14.2.6",
     "@prisma/client": "^5.17.0",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-dialog": "^1.1.1",
@@ -38,6 +39,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.51.5",
     "react-icons": "^5.2.1",
+    "react-paystack": "^6.0.0",
     "recharts": "^2.12.7",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",

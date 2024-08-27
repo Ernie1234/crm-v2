@@ -1,10 +1,18 @@
-import NextAuth from "next-auth";
+import NextAuth, { type DefaultSession } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 
 import { db } from "@/utils/db";
 import authConfig from "@/auth.config";
 import { getUserById } from "./utils/data";
 import { UserRole } from "@prisma/client";
+
+// declare module "@auth/core" {
+//   interface Session {
+//     user: {
+//       hasNotification: boolean;
+//     } & DefaultSession["user"];
+//   }
+// }
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   pages: {
@@ -29,7 +37,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
       if (token.role && session.user) {
         session.user.role = token.role as UserRole;
-        // session.user.name = token.name as string;
+      }
+      if (token.hasNotification && session.user) {
+        session.user.hasNotification = token.hasNotification as boolean;
       }
 
       return session;
@@ -42,6 +52,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
       token.role = existingUser.role;
       token.hasNotification = existingUser.hasNotification;
+      // token.hasNotification = existingUser.hasNotification;
 
       return token;
     },
