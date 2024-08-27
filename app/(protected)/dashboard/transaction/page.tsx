@@ -1,4 +1,4 @@
-import { getAllTransactions, getTransaction } from "@/actions/transaction";
+import { getAllTransactions } from "@/actions/transaction";
 import Nav from "@/components/dashboardComponents/Nav";
 import Table from "@/components/dashboardComponents/transaction/Table";
 
