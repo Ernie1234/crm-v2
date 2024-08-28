@@ -10,6 +10,19 @@ export const userLoginFormSchema = z.object({
     message: "Password must be at least 6 characters.",
   }),
 });
+//USER'S FORGET/RESET FORM ZOD SCHEMA
+export const userForgetFormSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: "Email is required" })
+    .email("Invalid email address"),
+});
+//USER'S NEW PASSWORD FORM ZOD SCHEMA
+export const newPasswordSchema = z.object({
+  password: z.string().min(3, {
+    message: "Password must be at least 6 characters.",
+  }),
+});
 
 //USER'S REGISTER FORM ZOD SCHEMA
 export const userRegisterFormSchema = z.object({

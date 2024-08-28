@@ -4,14 +4,19 @@
  * @type {string[]}
  */
 
-export const publicRoutes = ["/"];
+export const publicRoutes = ["/", "/auth/new-verification"];
 
 /**
  * An array of routes that are that are use for authentication
  * these routes will redirect logged in user to dashboard page
  * @type {string[]}
  */
-export const authRoutes = ["/auth/login", "/auth/register"];
+export const authRoutes = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/forget-password",
+  "/auth/new-password",
+];
 
 /**
  * The prefix for API auth route

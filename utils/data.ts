@@ -180,6 +180,31 @@ export const getVerificationTokenByEmail = async (email: string) => {
   }
 };
 
+export const getForgetPasswordTokenByToken = async (token: string) => {
+  try {
+    const forgetPasswordToken = await db.forgetPasswordToken.findUnique({
+      where: {
+        token,
+      },
+    });
+    return forgetPasswordToken;
+  } catch {
+    return null;
+  }
+};
+export const getForgetPasswordTokenByEmail = async (email: string) => {
+  try {
+    const forgetPasswordEmail = await db.forgetPasswordToken.findFirst({
+      where: {
+        email,
+      },
+    });
+    return forgetPasswordEmail;
+  } catch {
+    return null;
+  }
+};
+
 export const getPortfolioCommodityName = async (name: string) => {
   try {
     const portfolioCommodity = await db.portfolio.findUnique({

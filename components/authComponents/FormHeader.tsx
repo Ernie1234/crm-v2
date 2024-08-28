@@ -7,16 +7,25 @@ import { signIn } from "next-auth/react";
 
 import { Button } from "../ui/button";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
+import { useSearchParams } from "next/navigation";
 
 interface IProps {
   title: string;
-  subtitle: string;
+  subtitle?: string;
+  showBtn?: boolean;
 }
 
-export default function FormHeader({ title, subtitle }: IProps) {
+export default function FormHeader({
+  title,
+  subtitle,
+  showBtn = false,
+}: IProps) {
+  const searchParams = useSearchParams();
+  const callbackurl = searchParams.get("callbackUrl");
+
   const handleLogin = (provider: "google" | "facebook") => {
     signIn(provider, {
-      callbackUrl: DEFAULT_LOGIN_REDIRECT,
+      callbackUrl: callbackurl || DEFAULT_LOGIN_REDIRECT,
     });
   };
 
@@ -30,27 +39,33 @@ export default function FormHeader({ title, subtitle }: IProps) {
       <div className="flex flex-col items-center mt-16">
         <h1 className="text-3xl font-semibold text-green-600">{title}</h1>
         <p className="text-lg">{subtitle}</p>
-        <div className="flex flex-col md:flex-row gap-3 pt-5">
-          <Button
-            variant="outline"
-            className="rounded-full text-lg px-6 py-4"
-            onClick={() => handleLogin("google")}
-          >
-            <FcGoogle className="mr-2 h-6 w-6" />
-            Google
-          </Button>
-          <Button
-            variant="outline"
-            className="rounded-full text-lg px-6 py-4"
-            onClick={() => handleLogin("facebook")}
-          >
-            <FaFacebookF className="mr-2 h-6 w-6 text-blue-600" />
-            Facebook
-          </Button>
-        </div>
+        {!showBtn && (
+          <>
+            <div className="flex flex-col md:flex-row gap-3 pt-5">
+              <Button
+                variant="outline"
+                className="rounded-full text-lg px-6 py-4"
+                onClick={() => handleLogin("google")}
+              >
+                <FcGoogle className="mr-2 h-6 w-6" />
+                Google
+              </Button>
+              <Button
+                variant="outline"
+                className="rounded-full text-lg px-6 py-4"
+                onClick={() => handleLogin("facebook")}
+              >
+                <FaFacebookF className="mr-2 h-6 w-6 text-blue-600" />
+                Facebook
+              </Button>
+            </div>
+          </>
+        )}
       </div>
 
-      <p className="continue__text mt-4">Or continue with email</p>
+      {!showBtn && (
+        <p className="continue__text mt-4">Or continue with email</p>
+      )}
     </>
   );
 }

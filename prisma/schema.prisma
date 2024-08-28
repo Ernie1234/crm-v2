@@ -79,6 +79,15 @@ model VerificationToken {
   @@unique([email, token])
 }
 
+model ForgetPasswordToken {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
 model Commodity {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String   @unique

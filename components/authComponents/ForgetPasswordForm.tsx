@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useState, useTransition } from "react";
 
 import {
   Form,
@@ -15,39 +16,31 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { userLoginFormSchema } from "@/utils/schema";
+import { userForgetFormSchema } from "@/utils/schema";
 import FormError from "./FormError";
-import { loginAction } from "@/actions/login";
-import { useState, useTransition } from "react";
 import FormSuccess from "./FormSuccess";
 import FormHeader from "./FormHeader";
-import { useSearchParams } from "next/navigation";
+import { forgetPassword } from "@/actions/forget-password";
+// import { useSearchParams } from "next/navigation";
 
-export default function LoginForm() {
+export default function ForgetPasswordForm() {
   const [errors, setErrors] = useState<string | undefined>("");
   const [successs, setSuccesss] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl");
-  // const urlError =
-  //   searchParams.get("error") === "OAuthAccountNotLinked"
-  //     ? "Email already linked"
-  //     : undefined;
 
-  const form = useForm<z.infer<typeof userLoginFormSchema>>({
-    resolver: zodResolver(userLoginFormSchema),
+  const form = useForm<z.infer<typeof userForgetFormSchema>>({
+    resolver: zodResolver(userForgetFormSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof userLoginFormSchema>) {
+  function onSubmit(values: z.infer<typeof userForgetFormSchema>) {
     setErrors("");
     setSuccesss("");
 
     startTransition(() => {
-      loginAction(values, callbackUrl).then((data) => {
+      forgetPassword(values).then((data) => {
         setErrors(data?.error);
         setSuccesss(data?.success);
       });
@@ -56,7 +49,7 @@ export default function LoginForm() {
 
   return (
     <div className="flex-1 min-h-full flex flex-col bg-zinc-50 px-6 sm:px-12 md:px-16 lg:px-28 py-8 border-2 border-gray-200 overflow-y-scroll no-scrollbar">
-      <FormHeader title="Welcome Back" subtitle="Log into your Account below" />
+      <FormHeader showBtn title="Forget Password" />
       <div className="flex flex-col mt-4">
         <Form {...form}>
           <form
@@ -84,35 +77,6 @@ export default function LoginForm() {
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex justify-between pt-2 pb-1">
-                      <p>Password*</p>
-                      <Link
-                        className="text-green-500"
-                        href="/auth/forget-password"
-                      >
-                        Forget Password?
-                      </Link>
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter secure Password"
-                        {...field}
-                        disabled={isPending}
-                        type="password"
-                        className="p-3"
-                      />
-                    </FormControl>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
             {/* <FormError message={errors || urlError} /> */}
@@ -124,16 +88,16 @@ export default function LoginForm() {
               type="submit"
               disabled={isPending}
             >
-              Login
+              Send forget mail
             </Button>
           </form>
         </Form>
       </div>
 
       <p className="mt-8 text-center">
-        Already have an account?{" "}
-        <Link href="/auth/register">
-          <span className="text-green-500 font-semibold text-lg">Register</span>
+        Back to login{" "}
+        <Link href="/auth/login">
+          <span className="text-green-500 font-semibold text-lg">Login</span>
         </Link>
       </p>
     </div>
