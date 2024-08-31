@@ -22,7 +22,18 @@ export async function RecentTransaction({ className, ...props }: CardProps) {
   if (!Array.isArray(transaction)) return <p>Error fetching transaction.</p>;
 
   if (!transaction || transaction.length === 0)
-    return <p>No transaction found.</p>;
+    return (
+      <div className="bg-white p-4 border border-gray-200 h-full shadow-sm rounded-xl">
+        <div className="flex w-full justify-center items-center">
+          <Empty
+            title="No transaction"
+            subtitle="You don't own any commodity. Ready to buy some"
+            showBtn
+            btnTitle="Explore Commodity"
+          />
+        </div>
+      </div>
+    );
 
   return (
     <Card className={cn("w-full", className)} {...props}>

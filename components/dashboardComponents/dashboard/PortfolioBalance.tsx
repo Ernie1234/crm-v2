@@ -2,6 +2,7 @@ import { TbCurrencyNaira } from "react-icons/tb";
 import Chart from "./Chart";
 import { portfolioCommodity } from "@/actions/portfolio";
 import { formatPrice } from "@/utils/fnLib";
+import EmptyPortfolio from "./EmptyPortfolio";
 
 interface Props {
   adjust?: boolean;
@@ -12,7 +13,7 @@ export default async function PortfolioBalance({ adjust }: Props) {
   // console.log(portfolio);
 
   if (!Array.isArray(portfolio)) return <p>Error fetching portfolio.</p>;
-  if (portfolio.length === 0) return <p>No portfolio found.</p>;
+  if (portfolio.length === 0) return <EmptyPortfolio />;
 
   const balance = portfolio.reduce((acc, price) => acc + price.balance, 0);
 
