@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 
 import { useSendModalStore } from "@/hooks/use-send-store";
 import { useReceiveModalStore } from "@/hooks/use-receive-store";
-import Image from "next/image";
 import CopyToClipboard from "./CopyToClipboard";
 import { CircleHelp } from "lucide-react";
 import QRCodeComponent from "./QRCodeComponent";

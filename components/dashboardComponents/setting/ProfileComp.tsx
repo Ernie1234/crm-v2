@@ -21,8 +21,10 @@ import { useForm } from "react-hook-form";
 import { useTransition } from "react";
 import * as z from "zod";
 import { toast } from "@/components/ui/use-toast";
+import { useChangePasswordModalStore } from "@/hooks/use-change-password-store";
 
 export default function ProfileComp() {
+  const changeModalStore = useChangePasswordModalStore();
   const [isPending, startTransition] = useTransition();
   const user = useCurrentUser();
   const firstName = user?.name.split(" ")[0] || "";
@@ -128,14 +130,16 @@ export default function ProfileComp() {
                   Learn more
                 </Link>
               </p>
-              <Link href="/auth/forget-password" className="max-w-min">
+              <div className="max-w-min">
                 <Button
+                  type="button"
                   size="lg"
+                  onClick={changeModalStore.onOpen}
                   className="bg-green-50 hover:bg-green-600 hover:text-white text-green-700 transition-all duration-500"
                 >
                   Change Password
                 </Button>
-              </Link>
+              </div>
             </div>
           </div>
           <div className="col-span-1 flex justify-center relative">

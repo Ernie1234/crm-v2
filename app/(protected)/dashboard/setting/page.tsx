@@ -1,4 +1,5 @@
 import { getUserNotification } from "@/actions/notification";
+import ChangePasswordModal from "@/components/dashboardComponents/Modal/ChangePasswordModal";
 import Nav from "@/components/dashboardComponents/Nav";
 import SettingComp from "@/components/dashboardComponents/setting/SettingComp";
 
@@ -20,6 +21,7 @@ export default async function page() {
 
   return (
     <div className="w-full">
+      <ChangePasswordModal />
       <Nav header="Setting" />
       <main className="bg-gray-100 w-full min-h-dvh overflow-scroll no-scrollbar flex flex-col p-4">
         <SettingComp notification={notification} />

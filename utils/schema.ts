@@ -24,6 +24,18 @@ export const newPasswordSchema = z.object({
   }),
 });
 
+//USER'S CHANGE PASSWORD FORM ZOD SCHEMA
+export const ChangePasswordSchema = z
+  .object({
+    oldPassword: z.string().min(6, "Old password is required"),
+    newPassword: z.string().min(6, "New password is required"),
+    confirmPassword: z.string().min(6, "Confirmation password is required"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"], // Path to highlight the error
+  });
+
 //USER'S REGISTER FORM ZOD SCHEMA
 export const userRegisterFormSchema = z.object({
   firstName: z.string().min(1, {
