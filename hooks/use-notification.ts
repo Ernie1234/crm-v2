@@ -1,7 +1,7 @@
-import { hasNotification } from "@/actions/notification";
+import { getUserNotification } from "@/actions/notification";
 
-export const useHasNotification = async () => {
-  const notification = await hasNotification();
+export const useNotification = () => {
+  const notification = getUserNotification();
 
   if (!Array.isArray(notification)) return null;
 

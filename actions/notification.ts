@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import serverCurrentUser from "@/app/_components/serverCurrentUser";
 import { db } from "@/utils/db";
+import { UpdateUserNotification } from "@/utils/data";
 
 export const getUserNotification = async () => {
   try {
@@ -15,6 +16,8 @@ export const getUserNotification = async () => {
       where: { userId },
       orderBy: { createdAt: "desc" },
     });
+
+    await UpdateUserNotification(userId);
 
     return notifications;
   } catch (error) {

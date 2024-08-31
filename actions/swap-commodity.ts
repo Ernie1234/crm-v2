@@ -7,6 +7,7 @@ import serverCurrentUser from "@/app/_components/serverCurrentUser";
 import { db } from "@/utils/db";
 import { TransactionType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { newNotification } from "@/utils/data";
 
 export const swapCommodity = async (
   values: z.infer<typeof swapModalSchema>
@@ -87,6 +88,11 @@ export const swapCommodity = async (
         type: TransactionType.SWAP,
       },
     });
+
+    const title = "Swap Commodity";
+    const body = `You have swap ${commodityName} commodity for ${transferTo} commodity`;
+
+    await newNotification(userId, title, body);
 
     // console.log(price);
     // console.log(purchase);

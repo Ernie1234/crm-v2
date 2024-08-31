@@ -5,6 +5,7 @@ import { useState } from "react";
 import ProfileComp from "./ProfileComp";
 import NotificationComp from "./NotificationComp";
 import PreferenceComp from "./PreferenceComp";
+import { TNotification } from "@/app/(protected)/dashboard/setting/page";
 
 enum Tabs {
   BANKCARD,
@@ -12,7 +13,12 @@ enum Tabs {
   PROFILE,
   PREFERENCE,
 }
-export default function SettingComp() {
+
+interface Props {
+  notification: TNotification;
+}
+
+export default function SettingComp({ notification }: Props) {
   const [activeTab, setActiveTab] = useState(Tabs.PROFILE);
 
   return (
@@ -60,7 +66,9 @@ export default function SettingComp() {
       </div>
       <div className="bg-white p-4">
         {activeTab === Tabs.PROFILE && <ProfileComp />}
-        {activeTab === Tabs.NOTIFICATION && <NotificationComp />}
+        {activeTab === Tabs.NOTIFICATION && (
+          <NotificationComp notification={notification} />
+        )}
         {activeTab === Tabs.PREFERENCE && <PreferenceComp />}
       </div>
     </div>

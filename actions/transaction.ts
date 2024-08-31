@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { db } from "@/utils/db";
 import { TransactionType } from "@prisma/client";
 import serverCurrentUser from "@/app/_components/serverCurrentUser";
+import { newNotification } from "@/utils/data";
 
 interface Props {
   commodityName: string;
@@ -62,19 +63,10 @@ export const createTransaction = async ({
       });
     }
 
-    await db.notification.create({
-      data: {
-        userId,
-        title: "Bought Commodity",
-        body: `You have added a new commodity`,
-      },
-    });
-    await db.user.update({
-      where: { id: user.id },
-      data: {
-        hasNotification: true,
-      },
-    });
+    const title = "Bought Commodity";
+    const body = `You have added ${commodityName} commodity to your portfolio`;
+
+    await newNotification(userId, title, body);
 
     return {
       success: `You successfully sent (#${price}) to buy ${quantity} ${unit}`,

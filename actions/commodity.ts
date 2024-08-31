@@ -74,6 +74,15 @@ export const getCommodityById = async (id: string) => {
   });
   return commodities;
 };
+export const getCommodityByName = async (commodityName: string) => {
+  const commodities = await db.commodity.findUnique({
+    where: {
+      name: commodityName,
+    },
+    select: { price: true },
+  });
+  return commodities;
+};
 
 export const getCommodityName = async () => {
   try {

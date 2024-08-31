@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { formatPrice, getUIDFromAddress } from "@/utils/fnLib";
 import serverCurrentUser from "@/app/_components/serverCurrentUser";
-import { getUserById } from "@/utils/data";
+import { getUserById, newNotification } from "@/utils/data";
 import { sendModalSchema } from "@/utils/schema";
 import { db } from "@/utils/db";
 import { TransactionType } from "@prisma/client";
@@ -137,6 +137,13 @@ export const sendCommodity = async (
         type: TransactionType.RECEIVED,
       },
     });
+
+    const title = "Send Commodity";
+    const body = `You have send ${commodityName} commodity to ${
+      recipient.name || recipient.firstName
+    }.`;
+
+    await newNotification(userId, title, body);
 
     console.log(recipient, recipientAddress);
 

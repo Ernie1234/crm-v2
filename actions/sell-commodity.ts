@@ -7,6 +7,7 @@ import serverCurrentUser from "@/app/_components/serverCurrentUser";
 import { db } from "@/utils/db";
 import { TransactionType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { newNotification } from "@/utils/data";
 
 export const sellCommodity = async (
   values: z.infer<typeof sellModalSchema>
@@ -65,6 +66,12 @@ export const sellCommodity = async (
         accountNumber,
       },
     });
+
+    const title = "Sold Commodity";
+    const body = `You have sold ${commodityName} commodity`;
+
+    await newNotification(userId, title, body);
+
     revalidatePath(`/dashboard/transaction`);
     revalidatePath(`/dashboard/portfolio`);
     return {

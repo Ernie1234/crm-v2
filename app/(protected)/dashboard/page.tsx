@@ -1,4 +1,5 @@
 import { portfolioCommodity } from "@/actions/portfolio";
+import Spinner from "@/components/Spinner";
 import Nav from "@/components/dashboardComponents/Nav";
 import PortfolioBalance from "@/components/dashboardComponents/dashboard/PortfolioBalance";
 import { QuickAction } from "@/components/dashboardComponents/dashboard/QuickAction";
@@ -14,7 +15,14 @@ export default async function page() {
   return (
     <div className="w-full">
       <Nav header="Dashboard" />
-      <Suspense fallback={<p>Loading feed...</p>}>
+      <Suspense
+        fallback={
+          <div className="min-h-dvh flex flex-col gap-8 justify-center items-center">
+            <Spinner />
+            <p className="text-2xl ">Loading feed...</p>
+          </div>
+        }
+      >
         <main className="bg-gray-100 w-full min-h-dvh overflow-scroll no-scrollbar flex flex-col p-4">
           <div className="flex flex-col lg:flex-row w-full gap-8">
             <div className="w-full lg:max-w-[70%]">

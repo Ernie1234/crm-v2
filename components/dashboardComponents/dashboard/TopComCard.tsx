@@ -53,7 +53,6 @@ export default function TopComCard({
                 : "text-neutral-700"
             )}
           />
-          {/* TODO: CALL THE AVERAGE */}
           <p
             className={cn(
               avgPrice < 0
@@ -74,7 +73,6 @@ export default function TopComCard({
         </span>
         <span className="text-sm pb-1">per unit</span>
       </div>
-      {/* <Line data={chartData} options={options} /> */}
       <TopComChart chartData={chartData} />
     </div>
   );

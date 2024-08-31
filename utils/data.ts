@@ -154,6 +154,41 @@ export const getUserById = async (id: string) => {
     return null;
   }
 };
+export const UpdateUserNotification = async (userId: string) => {
+  try {
+    await db.user.update({
+      where: { id: userId },
+      data: {
+        hasNotification: false,
+      },
+    });
+  } catch (error) {
+    return null;
+  }
+};
+export const newNotification = async (
+  userId: string,
+  title: string,
+  body: string
+) => {
+  try {
+    await db.notification.create({
+      data: {
+        userId,
+        title,
+        body,
+      },
+    });
+    await db.user.update({
+      where: { id: userId },
+      data: {
+        hasNotification: true,
+      },
+    });
+  } catch (error) {
+    return null;
+  }
+};
 
 export const getVerificationTokenByToken = async (token: string) => {
   try {
