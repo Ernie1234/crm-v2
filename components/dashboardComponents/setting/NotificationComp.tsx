@@ -4,12 +4,14 @@ import { Bell } from "lucide-react";
 import { format } from "date-fns";
 
 import { TNotification } from "@/app/(protected)/dashboard/setting/page";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 interface Props {
   notification: TNotification;
 }
 
 export default function NotificationComp({ notification }: Props) {
+  const user = useCurrentUser();
   if (!Array.isArray(notification)) return <p>Error fetching notification.</p>;
 
   if (notification.length < 1 || !notification) {
@@ -30,9 +32,15 @@ export default function NotificationComp({ notification }: Props) {
     <div className="min-h-[70vh]">
       <div className="flex flex-col justify-center items-center">
         <Bell size={50} className="fill-gray-500 text-gray-500" />
-        <p className="text-3xl font-semibold text-gray-700 mb-2 mt-5">
-          You have {notification.length} new notifications
-        </p>
+        {user?.hasNotification ? (
+          <p className="text-3xl font-semibold text-gray-700 mb-2 mt-5">
+            You have {notification.length} new notifications
+          </p>
+        ) : (
+          <p className="text-3xl font-semibold text-gray-700 mb-2 mt-5">
+            You have no new notifications
+          </p>
+        )}
       </div>
 
       <div className="mt-12">

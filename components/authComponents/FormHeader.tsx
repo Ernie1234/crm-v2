@@ -8,6 +8,7 @@ import { signIn } from "next-auth/react";
 import { Button } from "../ui/button";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 interface IProps {
   title: string;
@@ -32,10 +33,15 @@ export default function FormHeader({
   return (
     <>
       <Link href="/">
-        <h4 className="text-green-600 font-medium text-2xl w-min">
-          A<span className="text-orange-400">C</span>M
-        </h4>
+        <Image
+          src="/logoGreen.png"
+          alt="logo"
+          className="object-contain w-40"
+          width={500}
+          height={500}
+        />
       </Link>
+
       <div className="flex flex-col items-center mt-16">
         <h1 className="text-3xl font-semibold text-green-600">{title}</h1>
         <p className="text-lg">{subtitle}</p>

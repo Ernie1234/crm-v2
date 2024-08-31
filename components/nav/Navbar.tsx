@@ -6,12 +6,32 @@ import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import Wrapper from "../Wrapper";
 
 import { navLinks } from "@/utils/data";
+import Image from "next/image";
 
 export default function Navbar() {
   return (
     <nav className="bg-green border-b border-green-foreground">
       <Wrapper className="flex justify-between items-center p-4 text-green-foreground">
-        ACM
+        <Link href="/">
+          <div className="hidden lg:flex">
+            <Image
+              src="/logo.svg"
+              alt="logo"
+              className="object-contain w-40"
+              width={500}
+              height={500}
+            />
+          </div>
+          <div className="flex lg:hidden">
+            <Image
+              src="/Frame 2.png"
+              alt="logo"
+              className="object-contain w-8 sm:w-12 md:w-14"
+              width={300}
+              height={300}
+            />
+          </div>
+        </Link>
         <ul className="hidden md:flex gap-8 items-center">
           {navLinks.map((link) => (
             <li key={link.text} className="text-green-foreground">

@@ -22,6 +22,7 @@ import { useState, useTransition } from "react";
 import FormSuccess from "./FormSuccess";
 import FormHeader from "./FormHeader";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 export default function LoginForm() {
   const [errors, setErrors] = useState<string | undefined>("");

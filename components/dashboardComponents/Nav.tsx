@@ -16,6 +16,7 @@ import { handleSignOut } from "@/actions/signOut";
 import { UserAvatar } from "./UserAvatar";
 import Link from "next/link";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useEffect } from "react";
 
 interface IProps {
   header: string;
@@ -23,7 +24,6 @@ interface IProps {
 
 export default function Nav({ header }: IProps) {
   const user = useCurrentUser();
-  const userId = user?.id;
 
   return (
     <div className="sticky top-0 p-4 bg-white shadow border-b border-gray-200 flex justify-between items-center min-w-full z-50">
@@ -46,16 +46,12 @@ export default function Nav({ header }: IProps) {
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Link
-                  href={`/user-profile/${userId}`}
+                  href="/dashboard/setting"
                   className="flex w-full h-full items-center"
                 >
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="hidden md:flex">
-                <Bell className="mr-2 h-4 w-4" />
-                <span>Notification</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Link

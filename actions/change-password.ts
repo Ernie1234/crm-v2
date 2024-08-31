@@ -7,6 +7,7 @@ import serverCurrentUser from "@/app/_components/serverCurrentUser";
 import { ChangePasswordSchema } from "@/utils/schema";
 import { db } from "@/utils/db";
 import { error } from "console";
+import { newNotification } from "@/utils/data";
 
 export const changePasswordAction = async (
   values: z.infer<typeof ChangePasswordSchema>
@@ -53,6 +54,11 @@ export const changePasswordAction = async (
     where: { id: userId },
     data: { password: hashedPassword },
   });
+
+  const title = "Change Password";
+  const body = `You have changed your password!`;
+
+  await newNotification(userId, title, body);
 
   return { success: "Password changed successfully" };
 };

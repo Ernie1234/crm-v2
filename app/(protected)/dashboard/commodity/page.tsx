@@ -31,7 +31,7 @@ export default async function page() {
       <Nav header="Commodity" />
       <main className="bg-gray-100 w-full min-h-dvh overflow-scroll no-scrollbar flex flex-col p-4">
         <div className="flex justify-between items-center">
-          <h3>search component here</h3>
+          {/* <h3>search component here</h3> */}
           {role === "ADMIN" && (
             <Sheet>
               <SheetTrigger asChild>
