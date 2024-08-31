@@ -41,17 +41,17 @@ export default async function Layout({ children }: IProps) {
 
   return (
     <SessionProvider session={session}>
-      <ErrorBoundary>
-        <div className="flex">
-          <ReceiveModal address={walletAddress} />
-          <SendModal portfolioCommodity={response} />
-          <BuyModal commodity={allCommodity} />
-          <SellModal portfolioCommodity={response} />
-          <SwapModal portfolioCommodity={response} commodity={allCommodity} />
-          <Sidebar />
-          <div className="w-full">{children}</div>
-        </div>
-      </ErrorBoundary>
+      {/* <ErrorBoundary> */}
+      <div className="flex">
+        <ReceiveModal address={walletAddress} />
+        <SendModal portfolioCommodity={response} />
+        <BuyModal commodity={allCommodity} />
+        <SellModal portfolioCommodity={response} />
+        <SwapModal portfolioCommodity={response} commodity={allCommodity} />
+        <Sidebar />
+        <div className="w-full">{children}</div>
+      </div>
+      {/* </ErrorBoundary> */}
     </SessionProvider>
   );
 }

@@ -7,12 +7,19 @@ import { BsChevronExpand } from "react-icons/bs";
 
 import { Separator } from "@/components/ui/separator";
 import { getCommodityById } from "@/actions/commodity";
-import { formatPrice } from "@/utils/fnLib";
+import {
+  calculatePercentageChange,
+  formatPrice,
+  getFormattedPriceChange,
+} from "@/utils/fnLib";
 import Nav from "@/components/dashboardComponents/Nav";
 import AboutCommodity from "@/components/dashboardComponents/commodity/AboutCommodity";
 import serverCurrentUser from "@/app/_components/serverCurrentUser";
 import EditCommodity from "@/components/dashboardComponents/commodity/EditCommodity";
 import { QuickAction } from "@/components/dashboardComponents/dashboard/QuickAction";
+import TransButtons from "@/components/dashboardComponents/commodity/TransButtons";
+import { RecentTransaction } from "@/components/dashboardComponents/dashboard/RecentTransaction";
+import { cn } from "@/lib/utils";
 
 export default async function page({
   params,
@@ -26,6 +33,11 @@ export default async function page({
 
   const comPrice = commodity && commodity?.price.at(-1)?.price;
   const unitQty = commodity && commodity?.maxQuantity / commodity?.minQuantity;
+  const lastPrice =
+    commodity && commodity.price.slice(-2).map((item) => item.price);
+
+  const avgPrice = lastPrice && calculatePercentageChange(lastPrice);
+  // const avgChange = lastPrice && getFormattedPriceChange(lastPrice);
 
   return (
     <div className="w-full min-h-dvh">
@@ -55,12 +67,31 @@ export default async function page({
                       {comPrice && formatPrice(comPrice)}
                     </span>
                   </p>
-                  <div className="flex">
-                    <MdOutlineShowChart size={24} className="fill-green-500" />
-                    {/* TODO: CALL THE AVERAGE */}
+                  <div className="flex space-x-1">
+                    <MdOutlineShowChart
+                      size={24}
+                      className={cn(
+                        avgPrice && avgPrice < 0
+                          ? "text-red-400"
+                          : avgPrice && avgPrice > 0
+                          ? "text-green-500"
+                          : "text-neutral-700"
+                      )}
+                    />
+                    <p
+                      className={cn(
+                        avgPrice && avgPrice < 0
+                          ? "text-red-400"
+                          : avgPrice && avgPrice > 0
+                          ? "text-green-500"
+                          : "text-neutral-700"
+                      )}
+                    >
+                      {avgPrice}%
+                    </p>
                   </div>
                 </div>
-                buttons here
+                <TransButtons />
               </div>
               <p className="font-semibold text-muted-foreground">
                 {unitQty} Unit{unitQty && (unitQty > 1 ? "s" : "")}
@@ -110,8 +141,17 @@ export default async function page({
                     </span>
                     <div className="flex items-center text-left w-full">
                       <span className="text-2xl font-semibold capitalize">
-                        {/* TODO: CALL THE AVERAGE INCREASE */}
-                        520.80 +1.25%
+                        <p
+                          className={cn(
+                            avgPrice && avgPrice < 0
+                              ? "text-red-400"
+                              : avgPrice && avgPrice > 0
+                              ? "text-green-500"
+                              : "text-neutral-700"
+                          )}
+                        >
+                          {/* {avgChange && avgChange} */}
+                        </p>
                       </span>
                     </div>
                   </div>
@@ -125,6 +165,7 @@ export default async function page({
           </div>
           <div className="col-span-1 md:col-span-1 flex flex-col gap-8">
             <QuickAction />
+            <RecentTransaction />
           </div>
         </div>
       </div>

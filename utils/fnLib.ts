@@ -36,3 +36,36 @@ export function getUIDFromAddress(
   }
   return address.slice(uidIndex + uidPrefix.length);
 }
+export const getFormattedPriceChange = (prices: number[]) => {
+  if (prices.length === 0) {
+    return "0";
+  } else if (prices.length === 1) {
+    return `${prices[0].toFixed(2)} +0.00%`;
+  }
+  const calculatePercentage = (prices: number[]) => {
+    if (prices.length < 2) return null;
+
+    const [oldPrice, newPrice] = prices;
+    const percentageChange = ((newPrice - oldPrice) / oldPrice) * 100;
+
+    return {
+      secondToLastPrice: oldPrice.toFixed(2),
+      percentageChange: percentageChange.toFixed(2),
+    };
+  };
+
+  const result = calculatePercentage(prices);
+
+  if (result) {
+    const { secondToLastPrice, percentageChange } = result;
+
+    const formattedPercentage =
+      Number(percentageChange) >= 0
+        ? `+${percentageChange}%`
+        : `${percentageChange}%`;
+
+    return `${secondToLastPrice} ${formattedPercentage}`;
+  }
+
+  return "Not enough data to calculate.";
+};
