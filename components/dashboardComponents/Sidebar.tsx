@@ -59,7 +59,7 @@ export default function Sidebar() {
           ))}
           {role === "ADMIN" && (
             <Link
-              href="/admin"
+              href="/admin/sell"
               className={`min-w-max flex items-center space-x-3 px-4 py-2 ${
                 pathname === "/admin"
                   ? "text-white bg-green-700 font-medium"

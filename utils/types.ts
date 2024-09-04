@@ -33,6 +33,7 @@ export type TUser = {
   emailVerified: Date | null;
   image: string | null;
   updatedAt: Date;
+  role: "USER" | "ADMIN";
 };
 
 export type TTransactionData = {
@@ -129,3 +130,30 @@ export type IBuy = {
   minQuantity: number;
   maxQuantity: number;
 };
+
+export interface ISellUser {
+  id: string;
+  userId: string;
+  commodityName: string;
+  bank: string;
+  accountNumber: number;
+  amount: number;
+  status: string | null; // Assuming these are possible statuses
+  createdAt: Date; // ISO date string
+  updatedAt: Date; // ISO date string
+  user: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    name: string | null;
+    phoneNumber: string | null;
+    email: string | null;
+    emailVerified: Date | null; // Assuming emailVerified can be null
+    image: string | null; // Assuming image can be null
+    password: string | null;
+    hasNotification: boolean;
+    role: "USER" | "ADMIN"; // Assuming role can be USER or ADMIN
+    createdAt: Date; // ISO date string
+    updatedAt: Date; // ISO date string
+  };
+}

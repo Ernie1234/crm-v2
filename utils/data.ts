@@ -1,4 +1,4 @@
-import { Bolt, HandCoins, LineChart } from "lucide-react";
+import { Banknote, Bolt, HandCoins, LineChart, UserRound } from "lucide-react";
 import { ShoppingBasket } from "lucide-react";
 import { BsHouse } from "react-icons/bs";
 
@@ -48,6 +48,18 @@ export const dashboardLinks = [
     path: "/dashboard/setting",
     text: "Setting",
     icon: Bolt,
+  },
+];
+export const adminLinks = [
+  {
+    path: "/admin/sell",
+    text: "Sell",
+    icon: Banknote,
+  },
+  {
+    path: "/admin/users",
+    text: "All User",
+    icon: UserRound,
   },
 ];
 

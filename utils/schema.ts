@@ -24,6 +24,19 @@ export const newPasswordSchema = z.object({
   }),
 });
 
+export const sellerFormSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  commodityName: z.string().min(2, {
+    message: "Username must be at least 2 characters.",
+  }),
+});
+export const adminUserFormSchema = z.object({
+  id: z.string(),
+  role: z.string(),
+  roleToggle: z.boolean(),
+});
+
 //USER'S CHANGE PASSWORD FORM ZOD SCHEMA
 export const ChangePasswordSchema = z
   .object({
